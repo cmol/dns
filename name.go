@@ -8,41 +8,42 @@ import (
 const NAME_POINTER = 0xc0
 const POINTER_MASK = 0x3fff
 
-func (m *Message) ParseName(bytes []byte, pointer int) (string, error) {
-	var name strings.Builder
-	initialPointer := pointer
-	bytesLength := len(bytes)
-
-	if bytesLength < pointer {
+func ParseName(bytes []byte, pointer int, domains map[int]string) (string, error) {
+	if len(bytes) < pointer {
 		return "", errors.New("Unable to parse name, pointer oob")
 	}
 	length := int(bytes[pointer])
 
-	// check pointer
+	// Check if name is a pointer to an earlier refereced domain
 	if length&NAME_POINTER == NAME_POINTER {
-		if n, ok := m.pointers[(length<<8|int(bytes[pointer+1]))&POINTER_MASK]; ok {
-			return n, nil
-		} else {
+		n, ok := domains[(length<<8|int(bytes[pointer+1]))&POINTER_MASK]
+		if !ok {
 			return "", errors.New("Name pointer points to nothing")
 		}
+		return n, nil
 	}
 
+	strname, err := parseNameBytes(bytes, pointer, length)
+	if err != nil {
+		return "", err
+	}
+	domains[pointer] = strname
+	return strname, nil
+}
+
+func parseNameBytes(bytes []byte, pointer, length int) (string, error) {
+	bytesLength := len(bytes)
+	var name strings.Builder
 	for length > 0 {
 		if bytesLength < pointer+length+1 {
 			return "", errors.New("Unable to parse name, subdomain oob")
 		}
 		name.Write(bytes[pointer+1 : pointer+length+1])
-
 		pointer += length + 1
-		if bytesLength < pointer {
-			return "", errors.New("Unable to parse name, length oob")
-		}
 		length = int(bytes[pointer])
 		if length > 0 {
 			name.WriteString(".")
 		}
 	}
-	strname := name.String()
-	m.pointers[initialPointer] = strname
-	return strname, nil
+	return name.String(), nil
 }
