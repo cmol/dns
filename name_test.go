@@ -1,6 +1,8 @@
 package dnsmessage
 
 import (
+	"bytes"
+	"reflect"
 	"testing"
 )
 
@@ -118,6 +120,62 @@ func TestMessage_ParseName(t *testing.T) {
 				if vv, ok := tt.args.domains[k]; !ok || vv != v {
 					t.Errorf("Message.ParseName() pointers[%d] = %v, want %v", k, v, vv)
 				}
+			}
+		})
+	}
+}
+
+func TestBuildName(t *testing.T) {
+	type args struct {
+		buf     *bytes.Buffer
+		name    string
+		domains map[string]int
+	}
+	tests := []struct {
+		name       string
+		args       args
+		want       []byte
+		wantLength int
+	}{
+		{
+			name: "single domain name",
+			args: args{
+				buf:     new(bytes.Buffer),
+				name:    "domain.test",
+				domains: map[string]int{},
+			},
+			want:       []byte("\x06domain\x04test\x00"),
+			wantLength: 13,
+		},
+		{
+			name: "sub domain name",
+			args: args{
+				buf:     new(bytes.Buffer),
+				name:    "sub.domain.test",
+				domains: map[string]int{},
+			},
+			want:       []byte("\x03sub\x06domain\x04test\x00"),
+			wantLength: 17,
+		},
+		{
+			name: "single domain name",
+			args: args{
+				buf:     new(bytes.Buffer),
+				name:    "domain.test",
+				domains: map[string]int{"domain.test": 42},
+			},
+			want:       []byte("\xc0\x2a"),
+			wantLength: 2,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotLength := BuildName(tt.args.buf, tt.args.name, tt.args.domains)
+			if !reflect.DeepEqual(tt.args.buf.Bytes(), tt.want) {
+				t.Errorf("BuildName() got = %v, want %v", tt.args.buf.Bytes(), tt.want)
+			}
+			if gotLength != tt.wantLength {
+				t.Errorf("BuildName() got = %v, want %v", gotLength, tt.wantLength)
 			}
 		})
 	}
