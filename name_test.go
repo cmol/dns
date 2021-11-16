@@ -85,16 +85,6 @@ func TestMessage_ParseName(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "bad pointer argument",
-			args: args{
-				bytes:   []byte("somerandomtext\x03sub\x06domain\x04test\x00"),
-				pointer: 200,
-				domains: map[int]string{},
-			},
-			want:    "",
-			wantErr: true,
-		},
-		{
 			name: "bad length indicator",
 			args: args{
 				bytes:   []byte("somerandomtext\x03sub\xff\x04test\x00"),
@@ -107,7 +97,8 @@ func TestMessage_ParseName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseName(tt.args.bytes, tt.args.pointer, tt.args.domains)
+			got, err := ParseName(bytes.NewBuffer(tt.args.bytes[tt.args.pointer:]),
+				tt.args.pointer, tt.args.domains)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Message.ParseName() error = %v, wantErr %v", err, tt.wantErr)
 				return
