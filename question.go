@@ -3,6 +3,7 @@ package dnsmessage
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 )
 
 type Question struct {
@@ -26,4 +27,21 @@ func ParseQuestion(buf *bytes.Buffer, pointer int, domains map[int]string) (Ques
 	}
 
 	return q, nil
+}
+
+func (q *Question) Build(buf *bytes.Buffer, domains map[string]int) error {
+	if q.Domain == "" || q.QType == 0 || q.QClass == 0 {
+		return errors.New("Domain or query type unset")
+	}
+
+	BuildName(buf, q.Domain, domains)
+	err := binary.Write(buf, binary.BigEndian, q.QType)
+	if err != nil {
+		return err
+	}
+	err = binary.Write(buf, binary.BigEndian, q.QClass)
+	if err != nil {
+		return err
+	}
+	return nil
 }

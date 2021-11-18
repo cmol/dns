@@ -56,3 +56,51 @@ func TestParseQuestion(t *testing.T) {
 		})
 	}
 }
+
+func TestQuestion_Build(t *testing.T) {
+	type fields struct {
+		Domain string
+		QType  Type
+		QClass Class
+	}
+	type args struct {
+		domains map[string]int
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+		wantBuf []byte
+	}{
+		{
+			name: "Test simple question",
+			fields: fields{
+				Domain: "domain.test",
+				QType:  A,
+				QClass: IN,
+			},
+			args: args{
+				domains: map[string]int{},
+			},
+			wantErr: false,
+			wantBuf: []byte("\x06domain\x04test\x00\x00\x01\x00\x01"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			q := &Question{
+				Domain: tt.fields.Domain,
+				QType:  tt.fields.QType,
+				QClass: tt.fields.QClass,
+			}
+			b := new(bytes.Buffer)
+			if err := q.Build(b, tt.args.domains); (err != nil) != tt.wantErr {
+				t.Errorf("Question.Build() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !reflect.DeepEqual(b.Bytes(), tt.wantBuf) {
+				t.Errorf("ParseQuestion() = %v, want %v", b.Bytes(), tt.wantBuf)
+			}
+		})
+	}
+}
