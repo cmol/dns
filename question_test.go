@@ -86,6 +86,18 @@ func TestQuestion_Build(t *testing.T) {
 			wantErr: false,
 			wantBuf: []byte("\x06domain\x04test\x00\x00\x01\x00\x01"),
 		},
+		{
+			name: "Question with missing Type",
+			fields: fields{
+				Domain: "domain.test",
+				QType:  0,
+				QClass: IN,
+			},
+			args: args{
+				domains: map[string]int{},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -97,6 +109,7 @@ func TestQuestion_Build(t *testing.T) {
 			b := new(bytes.Buffer)
 			if err := q.Build(b, tt.args.domains); (err != nil) != tt.wantErr {
 				t.Errorf("Question.Build() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
 			if !reflect.DeepEqual(b.Bytes(), tt.wantBuf) {
 				t.Errorf("ParseQuestion() = %v, want %v", b.Bytes(), tt.wantBuf)
