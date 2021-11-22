@@ -4,6 +4,14 @@ type Type uint16
 type Class uint16
 
 const (
+	OPT_RA = 0x80
+	OPT_RD = 0x100
+	OPT_TC = 0x200
+	OPT_AA = 0x400
+	OPT_QR = 0x8000
+)
+
+const (
 	IN Class = 1
 )
 
