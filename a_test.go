@@ -21,18 +21,12 @@ func TestIPv4_Parse(t *testing.T) {
 	}{
 		{
 			name: "Simple IPv4 address",
-			args: args{
-				buf: []byte("\xC0\xA8\x16\xBC"),
-			},
-			want: IPv4{
-				IP: netaddr.IPv4(192, 168, 22, 188),
-			},
+			args: args{buf: []byte("\xC0\xA8\x16\xBC")},
+			want: IPv4{netaddr.MustParseIP("192.168.22.188")},
 		},
 		{
-			name: "Not enough data in buffer",
-			args: args{
-				buf: []byte("\xC0\xA8\x16"),
-			},
+			name:    "Not enough data in buffer",
+			args:    args{buf: []byte("\xC0\xA8\x16")},
 			wantErr: true,
 		},
 	}
@@ -44,7 +38,7 @@ func TestIPv4_Parse(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(ip, tt.want) {
-				t.Errorf("ParseQuestion() = %v, want %v", ip, tt.want)
+				t.Errorf("IPv4.Parse() = %v, want %v", ip, tt.want)
 			}
 		})
 	}
@@ -65,11 +59,9 @@ func TestIPv4_Build(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Build simple address",
-			fields: fields{
-				IP: netaddr.IPv4(192, 168, 22, 188),
-			},
-			want: []byte("\xC0\xA8\x16\xBC"),
+			name:   "Build simple address",
+			fields: fields{netaddr.MustParseIP("192.168.22.188")},
+			want:   []byte("\xC0\xA8\x16\xBC"),
 		},
 	}
 	for _, tt := range tests {
@@ -83,7 +75,7 @@ func TestIPv4_Build(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(buf.Bytes(), tt.want) {
-				t.Errorf("ParseQuestion() = %v, want %v", buf.Bytes(), tt.want)
+				t.Errorf("IPv4.Build() = %v, want %v", buf.Bytes(), tt.want)
 			}
 		})
 	}

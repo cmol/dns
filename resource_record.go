@@ -56,7 +56,7 @@ func parseRData(buf *bytes.Buffer, typ Type, domains map[int]string) (RData, err
 	case AAAA:
 		rdata = &IPv6{}
 	default:
-		return rdata, errors.New("Type not supported")
+		return rdata, errors.New("Type not supported: " + RRTypeStrings[typ])
 	}
 	err := rdata.Parse(buf, domains)
 	return rdata, err
