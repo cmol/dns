@@ -53,9 +53,31 @@ func parseRData(buf *bytes.Buffer, typ Type, domains map[int]string) (RData, err
 	switch typ {
 	case A:
 		rdata = &IPv4{}
+	case AAAA:
+		rdata = &IPv6{}
 	default:
 		return rdata, errors.New("Type not supported")
 	}
 	err := rdata.Parse(buf, domains)
 	return rdata, err
+}
+
+func (r *Record) Build(buf *bytes.Buffer, domains map[string]int) error {
+	BuildName(buf, r.Name, domains)
+	if err := binary.Write(buf, binary.BigEndian, r.RType); err != nil {
+		return err
+	}
+	if err := binary.Write(buf, binary.BigEndian, r.Class); err != nil {
+		return err
+	}
+	if err := binary.Write(buf, binary.BigEndian, r.TTL); err != nil {
+		return err
+	}
+	if err := binary.Write(buf, binary.BigEndian, r.RDataLength); err != nil {
+		return err
+	}
+	if err := r.Data.Build(buf, domains); err != nil {
+		return err
+	}
+	return nil
 }
