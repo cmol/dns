@@ -13,11 +13,11 @@ type IPv4 struct {
 }
 
 func (ip *IPv4) Parse(buf *bytes.Buffer, domains map[int]string) error {
-	a := make([]byte, 4)
-	if err := binary.Read(buf, binary.BigEndian, &a); err != nil {
+	var a [4]byte
+	if err := binary.Read(buf, binary.BigEndian, a[:]); err != nil {
 		return errors.New("Could not read IPv4 address")
 	}
-	ip.IP = netaddr.IPv4(a[0], a[1], a[2], a[3])
+	ip.IP = netaddr.IPFrom4(a)
 	return nil
 }
 
