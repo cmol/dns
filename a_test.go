@@ -10,8 +10,7 @@ import (
 
 func TestIPv4_Parse(t *testing.T) {
 	type args struct {
-		buf     []byte
-		domains map[int]string
+		buf []byte
 	}
 	tests := []struct {
 		name    string
@@ -33,7 +32,7 @@ func TestIPv4_Parse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ip := IPv4{}
-			if err := ip.Parse(bytes.NewBuffer(tt.args.buf), tt.args.domains); (err != nil) != tt.wantErr {
+			if err := ip.Parse(bytes.NewBuffer(tt.args.buf), &Pointers{}); (err != nil) != tt.wantErr {
 				t.Errorf("IPv4.Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -48,13 +47,9 @@ func TestIPv4_Build(t *testing.T) {
 	type fields struct {
 		IP netaddr.IP
 	}
-	type args struct {
-		domains map[string]int
-	}
 	tests := []struct {
 		name    string
 		fields  fields
-		args    args
 		want    []byte
 		wantErr bool
 	}{
@@ -70,7 +65,7 @@ func TestIPv4_Build(t *testing.T) {
 				IP: tt.fields.IP,
 			}
 			buf := new(bytes.Buffer)
-			if err := ip.Build(buf, tt.args.domains); (err != nil) != tt.wantErr {
+			if err := ip.Build(buf, &Pointers{}); (err != nil) != tt.wantErr {
 				t.Errorf("IPv4.Build() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

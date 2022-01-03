@@ -12,7 +12,7 @@ type IPv4 struct {
 	IP netaddr.IP
 }
 
-func (ip *IPv4) Parse(buf *bytes.Buffer, domains map[int]string) error {
+func (ip *IPv4) Parse(buf *bytes.Buffer, domains *Pointers) error {
 	var a [4]byte
 	if err := binary.Read(buf, binary.BigEndian, a[:]); err != nil {
 		return errors.New("Could not read IPv4 address")
@@ -21,7 +21,7 @@ func (ip *IPv4) Parse(buf *bytes.Buffer, domains map[int]string) error {
 	return nil
 }
 
-func (ip *IPv4) Build(buf *bytes.Buffer, domains map[string]int) error {
+func (ip *IPv4) Build(buf *bytes.Buffer, domains *Pointers) error {
 	addr := ip.IP.As4()
 	binary.Write(buf, binary.BigEndian, addr)
 	return nil

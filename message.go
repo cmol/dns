@@ -124,7 +124,7 @@ func ParseMessage(buf *bytes.Buffer) (*Message, error) {
 	}
 	ptr := HDR_LENGTH
 	//bufLen := buf.Len()
-	domains := map[int]string{}
+	domains := &Pointers{parsePtr: map[int]string{}, buildPtr: map[string]int{}}
 	err = m.parseQuestions(buf, domains, ptr)
 	if err != nil {
 		return m, err
@@ -144,7 +144,7 @@ func ParseMessage(buf *bytes.Buffer) (*Message, error) {
 	return m, nil
 }
 
-func (m *Message) parseQuestions(buf *bytes.Buffer, domains map[int]string, ptr int) error {
+func (m *Message) parseQuestions(buf *bytes.Buffer, domains *Pointers, ptr int) error {
 	bufLen := buf.Len()
 	for i := 0; i < int(m.qdcount); i++ {
 		q, err := ParseQuestion(buf, ptr, domains)
@@ -158,7 +158,7 @@ func (m *Message) parseQuestions(buf *bytes.Buffer, domains map[int]string, ptr 
 	return nil
 }
 
-func (m *Message) parseRecords(buf *bytes.Buffer, domains map[int]string, ptr int,
+func (m *Message) parseRecords(buf *bytes.Buffer, domains *Pointers, ptr int,
 	count uint16, list []Record) error {
 	bufLen := buf.Len()
 	for i := 0; i < int(count); i++ {
@@ -172,3 +172,19 @@ func (m *Message) parseRecords(buf *bytes.Buffer, domains map[int]string, ptr in
 	}
 	return nil
 }
+
+/*func (m *Message) Build(buf *bytes.Buffer, domains map[string]int) error {
+	m.qdcount = uint16(len(m.questions))
+	m.ancount = uint16(len(m.answers))
+	m.nscount = uint16(len(m.nameservers))
+	m.arcount = uint16(len(m.additional))
+	err := m.BuildHeader(buf)
+	if err != nil {
+		return errors.New("Unable to build header")
+	}
+
+	err = m.buildQuestions(buf, domains, ptr)
+	if err != nil {
+		return err
+	}
+}*/

@@ -10,8 +10,7 @@ import (
 
 func TestIPv6_Parse(t *testing.T) {
 	type args struct {
-		buf     []byte
-		domains map[int]string
+		buf []byte
 	}
 	tests := []struct {
 		name    string
@@ -33,7 +32,7 @@ func TestIPv6_Parse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ip := IPv6{}
-			if err := ip.Parse(bytes.NewBuffer(tt.args.buf), tt.args.domains); (err != nil) != tt.wantErr {
+			if err := ip.Parse(bytes.NewBuffer(tt.args.buf), &Pointers{}); (err != nil) != tt.wantErr {
 				t.Errorf("IPv6.Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -45,12 +44,8 @@ func TestIPv6_Parse(t *testing.T) {
 }
 
 func TestIPv6_Build(t *testing.T) {
-	type args struct {
-		domains map[string]int
-	}
 	tests := []struct {
 		name    string
-		args    args
 		address netaddr.IP
 		want    []byte
 		wantErr bool
@@ -65,7 +60,7 @@ func TestIPv6_Build(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ip := &IPv6{IP: tt.address}
 			buf := new(bytes.Buffer)
-			if err := ip.Build(buf, tt.args.domains); (err != nil) != tt.wantErr {
+			if err := ip.Build(buf, NewPointers()); (err != nil) != tt.wantErr {
 				t.Errorf("IPv4.Build() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

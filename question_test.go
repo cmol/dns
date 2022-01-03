@@ -10,7 +10,6 @@ func TestParseQuestion(t *testing.T) {
 	type args struct {
 		buf     []byte
 		pointer int
-		domains map[int]string
 	}
 	tests := []struct {
 		name    string
@@ -23,7 +22,6 @@ func TestParseQuestion(t *testing.T) {
 			args: args{
 				buf:     []byte("\x06domain\x04test\x00\x00\x01\x00\x01"),
 				pointer: 0,
-				domains: map[int]string{},
 			},
 			want: Question{
 				Domain: "domain.test",
@@ -37,7 +35,6 @@ func TestParseQuestion(t *testing.T) {
 			args: args{
 				buf:     []byte("\x06domain\x04test\x00\x01\x00\x01"),
 				pointer: 0,
-				domains: map[int]string{},
 			},
 			wantErr: true,
 		},
@@ -45,7 +42,7 @@ func TestParseQuestion(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ParseQuestion(bytes.NewBuffer(tt.args.buf), tt.args.pointer,
-				tt.args.domains)
+				NewPointers())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseQuestion() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -63,13 +60,9 @@ func TestQuestion_Build(t *testing.T) {
 		QType  Type
 		QClass Class
 	}
-	type args struct {
-		domains map[string]int
-	}
 	tests := []struct {
 		name    string
 		fields  fields
-		args    args
 		wantErr bool
 		wantBuf []byte
 	}{
@@ -80,9 +73,6 @@ func TestQuestion_Build(t *testing.T) {
 				QType:  A,
 				QClass: IN,
 			},
-			args: args{
-				domains: map[string]int{},
-			},
 			wantErr: false,
 			wantBuf: []byte("\x06domain\x04test\x00\x00\x01\x00\x01"),
 		},
@@ -92,9 +82,6 @@ func TestQuestion_Build(t *testing.T) {
 				Domain: "domain.test",
 				QType:  0,
 				QClass: IN,
-			},
-			args: args{
-				domains: map[string]int{},
 			},
 			wantErr: true,
 		},
@@ -107,7 +94,7 @@ func TestQuestion_Build(t *testing.T) {
 				QClass: tt.fields.QClass,
 			}
 			b := new(bytes.Buffer)
-			if err := q.Build(b, tt.args.domains); (err != nil) != tt.wantErr {
+			if err := q.Build(b, NewPointers()); (err != nil) != tt.wantErr {
 				t.Errorf("Question.Build() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

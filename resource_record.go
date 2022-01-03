@@ -7,8 +7,8 @@ import (
 )
 
 type RData interface {
-	Parse(*bytes.Buffer, map[int]string) error
-	Build(*bytes.Buffer, map[string]int) error
+	Parse(*bytes.Buffer, *Pointers) error
+	Build(*bytes.Buffer, *Pointers) error
 }
 
 type Record struct {
@@ -20,7 +20,7 @@ type Record struct {
 	Data        RData
 }
 
-func ParseRecord(buf *bytes.Buffer, pointer int, domains map[int]string) (Record, error) {
+func ParseRecord(buf *bytes.Buffer, pointer int, domains *Pointers) (Record, error) {
 	var err error
 	r := Record{}
 	r.Name, err = ParseName(buf, pointer, domains)
@@ -48,7 +48,7 @@ func ParseRecord(buf *bytes.Buffer, pointer int, domains map[int]string) (Record
 	return r, nil
 }
 
-func parseRData(buf *bytes.Buffer, typ Type, domains map[int]string) (RData, error) {
+func parseRData(buf *bytes.Buffer, typ Type, domains *Pointers) (RData, error) {
 	var rdata RData
 	switch typ {
 	case A:
@@ -62,7 +62,7 @@ func parseRData(buf *bytes.Buffer, typ Type, domains map[int]string) (RData, err
 	return rdata, err
 }
 
-func (r *Record) Build(buf *bytes.Buffer, domains map[string]int) error {
+func (r *Record) Build(buf *bytes.Buffer, domains *Pointers) error {
 	BuildName(buf, r.Name, domains)
 	if err := binary.Write(buf, binary.BigEndian, r.RType); err != nil {
 		return err
