@@ -9,7 +9,7 @@ import (
 const NAME_POINTER = 0xc0
 const POINTER_MASK = 0x3fff
 
-func ParseName(buf *bytes.Buffer, ptr int, domains *Pointers) (string, error) {
+func ParseName(buf *bytes.Buffer, ptr int, domains *Domains) (string, error) {
 	var name bytes.Buffer
 	length, err := buf.ReadByte()
 	if err != nil {
@@ -47,7 +47,7 @@ func ParseName(buf *bytes.Buffer, ptr int, domains *Pointers) (string, error) {
 	return name.String(), nil
 }
 
-func BuildName(buf *bytes.Buffer, name string, domains *Pointers) int {
+func BuildName(buf *bytes.Buffer, name string, domains *Domains) int {
 	writePtr := buf.Len()
 	written := 0
 	name = name + "."

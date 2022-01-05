@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestPointers_SetParse(t *testing.T) {
+func TestDomains_SetParse(t *testing.T) {
 	type fields struct {
 		parsePtr map[int]string
 	}
@@ -30,20 +30,20 @@ func TestPointers_SetParse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &Pointers{
+			d := &Domains{
 				parsePtr: tt.fields.parsePtr,
 			}
-			p.SetParse(tt.args.ptr, tt.args.name)
+			d.SetParse(tt.args.ptr, tt.args.name)
 			for k, v := range tt.want {
-				if vv, ok := p.GetParse(k); !ok || vv != v {
-					t.Errorf("Pointer.SetParse() pointers[%v] = %v, want %v", k, v, vv)
+				if vv, ok := d.GetParse(k); !ok || vv != v {
+					t.Errorf("Domains.SetParse() domains[%v] = %v, want %v", k, v, vv)
 				}
 			}
 		})
 	}
 }
 
-func TestPointers_SetBuild(t *testing.T) {
+func TestDomains_SetBuild(t *testing.T) {
 	type fields struct {
 		buildPtr map[string]int
 	}
@@ -70,13 +70,13 @@ func TestPointers_SetBuild(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &Pointers{
+			d := &Domains{
 				buildPtr: tt.fields.buildPtr,
 			}
-			p.SetBuild(tt.args.ptr, tt.args.name)
+			d.SetBuild(tt.args.ptr, tt.args.name)
 			for k, v := range tt.want {
-				if vv, ok := p.GetBuild(k); !ok || vv != v {
-					t.Errorf("Pointer.SetBuild() pointers[%v] = %v, want %v", k, v, vv)
+				if vv, ok := d.GetBuild(k); !ok || vv != v {
+					t.Errorf("Domains.SetBuild() domains[%v] = %v, want %v", k, v, vv)
 				}
 			}
 		})

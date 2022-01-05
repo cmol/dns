@@ -12,7 +12,7 @@ func TestParseRecord(t *testing.T) {
 	type args struct {
 		buf      []byte
 		pointer  int
-		pointers *Pointers
+		domains *Domains
 	}
 	tests := []struct {
 		name    string
@@ -24,7 +24,7 @@ func TestParseRecord(t *testing.T) {
 			name: "Simple AAAA record",
 			args: args{
 				buf:      []byte("\x06golang\x03com\x00\x00\x1c\x00\x01\x00\x00\x01\x2c\x00\x10\x26\x07\xf8\xb0\x40\x0b\x08\x02\x00\x00\x00\x00\x00\x00\x20\x11"),
-				pointers: NewPointers(),
+				domains: NewDomains(),
 			},
 			want: Record{
 				Name:        "golang.com",
@@ -39,7 +39,7 @@ func TestParseRecord(t *testing.T) {
 			name: "Simple A record",
 			args: args{
 				buf:      []byte("\x06golang\x03com\x00\x00\x01\x00\x01\x00\x00\x01\x2c\x00\x04\x8e\xfb\x29\x51"),
-				pointers: NewPointers(),
+				domains: NewDomains(),
 			},
 			want: Record{
 				Name:        "golang.com",
@@ -54,14 +54,14 @@ func TestParseRecord(t *testing.T) {
 			name: "Simple A record",
 			args: args{
 				buf:      []byte("\x06golang\x03com\x00\x00\x77\x00\x01\x00\x00\x01\x2c\x00\x04\x8e\xfb\x29\x51"),
-				pointers: NewPointers(),
+				domains: NewDomains(),
 			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseRecord(bytes.NewBuffer(tt.args.buf), tt.args.pointer, tt.args.pointers)
+			got, err := ParseRecord(bytes.NewBuffer(tt.args.buf), tt.args.pointer, tt.args.domains)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseRecord() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -83,7 +83,7 @@ func TestRecord_Build(t *testing.T) {
 		Data        RData
 	}
 	type args struct {
-		pointers *Pointers
+		domains *Domains
 	}
 	tests := []struct {
 		name    string
@@ -94,7 +94,7 @@ func TestRecord_Build(t *testing.T) {
 	}{
 		{
 			name: "Build Simple AAAA record",
-			args: args{pointers: NewPointers()},
+			args: args{domains: NewDomains()},
 			fields: fields{
 				TTL:         300,
 				Class:       1,
@@ -107,7 +107,7 @@ func TestRecord_Build(t *testing.T) {
 		},
 		{
 			name: "Build Simple A record",
-			args: args{pointers: NewPointers()},
+			args: args{domains: NewDomains()},
 			fields: fields{
 				TTL:         300,
 				Class:       1,
@@ -130,7 +130,7 @@ func TestRecord_Build(t *testing.T) {
 				Data:        tt.fields.Data,
 			}
 			buf := new(bytes.Buffer)
-			if err := r.Build(buf, tt.args.pointers); (err != nil) != tt.wantErr {
+			if err := r.Build(buf, tt.args.domains); (err != nil) != tt.wantErr {
 				t.Errorf("Record.Build() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

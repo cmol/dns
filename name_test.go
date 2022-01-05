@@ -10,7 +10,7 @@ func TestMessage_ParseName(t *testing.T) {
 	type args struct {
 		bytes   []byte
 		pointer int
-		domains *Pointers
+		domains *Domains
 	}
 	tests := []struct {
 		name        string
@@ -24,7 +24,7 @@ func TestMessage_ParseName(t *testing.T) {
 			args: args{
 				bytes:   []byte("\x06domain\x04test\x00"),
 				pointer: 0,
-				domains: &Pointers{parsePtr: map[int]string{}},
+				domains: &Domains{parsePtr: map[int]string{}},
 			},
 			want:        "domain.test",
 			wantErr:     false,
@@ -35,7 +35,7 @@ func TestMessage_ParseName(t *testing.T) {
 			args: args{
 				bytes:   []byte("\x03sub\x06domain\x04test\x00"),
 				pointer: 0,
-				domains: &Pointers{parsePtr: map[int]string{}},
+				domains: &Domains{parsePtr: map[int]string{}},
 			},
 			want:        "sub.domain.test",
 			wantErr:     false,
@@ -46,7 +46,7 @@ func TestMessage_ParseName(t *testing.T) {
 			args: args{
 				bytes:   []byte("somerandomtext\x03sub\x06domain\x04test\x00"),
 				pointer: 14,
-				domains: &Pointers{parsePtr: map[int]string{}},
+				domains: &Domains{parsePtr: map[int]string{}},
 			},
 			want:        "sub.domain.test",
 			wantErr:     false,
@@ -57,7 +57,7 @@ func TestMessage_ParseName(t *testing.T) {
 			args: args{
 				bytes:   []byte("somerandomtext\x03sub\x06domain\x04test\x00\xc0\x0e"),
 				pointer: 31,
-				domains: &Pointers{parsePtr: map[int]string{14: "sub.domain.test"}},
+				domains: &Domains{parsePtr: map[int]string{14: "sub.domain.test"}},
 			},
 			want:        "sub.domain.test",
 			wantErr:     false,
@@ -68,7 +68,7 @@ func TestMessage_ParseName(t *testing.T) {
 			args: args{
 				bytes:   []byte("somerandomtext\x03sub\x06domain\x04test\x00\xc0\x0f"),
 				pointer: 31,
-				domains: &Pointers{parsePtr: map[int]string{14: "sub.domain.test"}},
+				domains: &Domains{parsePtr: map[int]string{14: "sub.domain.test"}},
 			},
 			want:        "",
 			wantErr:     true,
@@ -79,7 +79,7 @@ func TestMessage_ParseName(t *testing.T) {
 			args: args{
 				bytes:   []byte("somerandomtext\x03sub\x06domain\x04test\x00"),
 				pointer: 15,
-				domains: &Pointers{parsePtr: map[int]string{}},
+				domains: &Domains{parsePtr: map[int]string{}},
 			},
 			want:    "",
 			wantErr: true,
@@ -89,7 +89,7 @@ func TestMessage_ParseName(t *testing.T) {
 			args: args{
 				bytes:   []byte("somerandomtext\x03sub\xff\x04test\x00"),
 				pointer: 14,
-				domains: &Pointers{parsePtr: map[int]string{}},
+				domains: &Domains{parsePtr: map[int]string{}},
 			},
 			want:    "",
 			wantErr: true,
@@ -109,7 +109,7 @@ func TestMessage_ParseName(t *testing.T) {
 			}
 			for k, v := range tt.wantDomains {
 				if vv, ok := tt.args.domains.GetParse(k); !ok || vv != v {
-					t.Errorf("Message.ParseName() pointers[%d] = %v, want %v", k, v, vv)
+					t.Errorf("Message.ParseName() domains[%d] = %v, want %v", k, v, vv)
 				}
 			}
 		})
@@ -120,7 +120,7 @@ func TestBuildName(t *testing.T) {
 	type args struct {
 		buf      *bytes.Buffer
 		name     string
-		pointers *Pointers
+		domains *Domains
 	}
 	tests := []struct {
 		name       string
@@ -133,7 +133,7 @@ func TestBuildName(t *testing.T) {
 			args: args{
 				buf:      new(bytes.Buffer),
 				name:     "domain.test",
-				pointers: &Pointers{buildPtr: map[string]int{}},
+				domains: &Domains{buildPtr: map[string]int{}},
 			},
 			want:       []byte("\x06domain\x04test\x00"),
 			wantLength: 13,
@@ -143,7 +143,7 @@ func TestBuildName(t *testing.T) {
 			args: args{
 				buf:      new(bytes.Buffer),
 				name:     "sub.domain.test",
-				pointers: &Pointers{buildPtr: map[string]int{}},
+				domains: &Domains{buildPtr: map[string]int{}},
 			},
 			want:       []byte("\x03sub\x06domain\x04test\x00"),
 			wantLength: 17,
@@ -153,7 +153,7 @@ func TestBuildName(t *testing.T) {
 			args: args{
 				buf:      new(bytes.Buffer),
 				name:     "domain.test",
-				pointers: &Pointers{buildPtr: map[string]int{"domain.test": 42}},
+				domains: &Domains{buildPtr: map[string]int{"domain.test": 42}},
 			},
 			want:       []byte("\xc0\x2a"),
 			wantLength: 2,
@@ -163,7 +163,7 @@ func TestBuildName(t *testing.T) {
 			args: args{
 				buf:      new(bytes.Buffer),
 				name:     "sub.domain.test",
-				pointers: &Pointers{buildPtr: map[string]int{"domain.test": 42}},
+				domains: &Domains{buildPtr: map[string]int{"domain.test": 42}},
 			},
 			want:       []byte("\x03sub\xc0\x2a"),
 			wantLength: 6,
@@ -171,7 +171,7 @@ func TestBuildName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotLength := BuildName(tt.args.buf, tt.args.name, tt.args.pointers)
+			gotLength := BuildName(tt.args.buf, tt.args.name, tt.args.domains)
 			if !reflect.DeepEqual(tt.args.buf.Bytes(), tt.want) {
 				t.Errorf("BuildName() got = %v, want %v", tt.args.buf.Bytes(), tt.want)
 			}

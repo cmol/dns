@@ -12,7 +12,7 @@ type Question struct {
 	QClass Class
 }
 
-func ParseQuestion(buf *bytes.Buffer, pointer int, domains *Pointers) (Question, error) {
+func ParseQuestion(buf *bytes.Buffer, pointer int, domains *Domains) (Question, error) {
 	q := Question{}
 	dom, err := ParseName(buf, pointer, domains)
 	if err != nil {
@@ -29,7 +29,7 @@ func ParseQuestion(buf *bytes.Buffer, pointer int, domains *Pointers) (Question,
 	return q, nil
 }
 
-func (q *Question) Build(buf *bytes.Buffer, domains *Pointers) error {
+func (q *Question) Build(buf *bytes.Buffer, domains *Domains) error {
 	if q.Domain == "" || q.QType == 0 || q.QClass == 0 {
 		return errors.New("Domain or query type unset")
 	}

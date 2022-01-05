@@ -125,7 +125,7 @@ func ParseMessage(buf *bytes.Buffer) (*Message, error) {
 		return m, err
 	}
 	ptr := HDR_LENGTH
-	domains := &Pointers{parsePtr: map[int]string{}, buildPtr: map[string]int{}}
+	domains := &Domains{parsePtr: map[int]string{}, buildPtr: map[string]int{}}
 	err = m.parseQuestions(buf, domains, ptr)
 	if err != nil {
 		return m, fmt.Errorf("unable to parse questions: %v",err)
@@ -145,7 +145,7 @@ func ParseMessage(buf *bytes.Buffer) (*Message, error) {
 	return m, nil
 }
 
-func (m *Message) parseQuestions(buf *bytes.Buffer, domains *Pointers, ptr int) error {
+func (m *Message) parseQuestions(buf *bytes.Buffer, domains *Domains, ptr int) error {
 	bufLen := buf.Len()
 	for i := 0; i < int(m.qdcount); i++ {
 		q, err := ParseQuestion(buf, ptr, domains)
@@ -159,7 +159,7 @@ func (m *Message) parseQuestions(buf *bytes.Buffer, domains *Pointers, ptr int) 
 	return nil
 }
 
-func (m *Message) parseRecords(buf *bytes.Buffer, domains *Pointers, ptr int,
+func (m *Message) parseRecords(buf *bytes.Buffer, domains *Domains, ptr int,
 	count uint16, list []Record) ([]Record, error) {
 	bufLen := buf.Len()
 	for i := 0; i < int(count); i++ {
@@ -174,7 +174,7 @@ func (m *Message) parseRecords(buf *bytes.Buffer, domains *Pointers, ptr int,
 	return list, nil
 }
 
-func (m *Message) Build(buf *bytes.Buffer, domains *Pointers) error {
+func (m *Message) Build(buf *bytes.Buffer, domains *Domains) error {
 	m.qdcount = uint16(len(m.questions))
 	m.ancount = uint16(len(m.answers))
 	m.nscount = uint16(len(m.nameservers))
@@ -203,7 +203,7 @@ func (m *Message) Build(buf *bytes.Buffer, domains *Pointers) error {
 	return nil
 }
 
-func (m *Message) buildQuestions(buf *bytes.Buffer, domains *Pointers) error {
+func (m *Message) buildQuestions(buf *bytes.Buffer, domains *Domains) error {
 	for _, q := range m.questions {
 		err := q.Build(buf, domains)
 		if err != nil {
@@ -213,7 +213,7 @@ func (m *Message) buildQuestions(buf *bytes.Buffer, domains *Pointers) error {
 	return nil
 }
 
-func (m *Message) buildRecords(buf *bytes.Buffer, domains *Pointers, records []Record) error {
+func (m *Message) buildRecords(buf *bytes.Buffer, domains *Domains, records []Record) error {
 	for _, r := range records {
 		err := r.Build(buf, domains)
 		if err != nil {

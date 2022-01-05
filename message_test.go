@@ -315,7 +315,7 @@ func TestMessage_Build(t *testing.T) {
 				additional:  tt.fields.additional,
 			}
 			buf := new(bytes.Buffer)
-			if err := m.Build(buf, NewPointers()); (err != nil) != tt.wantErr {
+			if err := m.Build(buf, NewDomains()); (err != nil) != tt.wantErr {
 				t.Errorf("Message.Build() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

@@ -42,7 +42,7 @@ func TestParseQuestion(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ParseQuestion(bytes.NewBuffer(tt.args.buf), tt.args.pointer,
-				NewPointers())
+				NewDomains())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseQuestion() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -94,7 +94,7 @@ func TestQuestion_Build(t *testing.T) {
 				QClass: tt.fields.QClass,
 			}
 			b := new(bytes.Buffer)
-			if err := q.Build(b, NewPointers()); (err != nil) != tt.wantErr {
+			if err := q.Build(b, NewDomains()); (err != nil) != tt.wantErr {
 				t.Errorf("Question.Build() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
