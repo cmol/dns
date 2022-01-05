@@ -3,6 +3,8 @@ package dnsmessage
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
+	"fmt"
 )
 
 const HDR_LENGTH = 12
@@ -123,23 +125,22 @@ func ParseMessage(buf *bytes.Buffer) (*Message, error) {
 		return m, err
 	}
 	ptr := HDR_LENGTH
-	//bufLen := buf.Len()
 	domains := &Pointers{parsePtr: map[int]string{}, buildPtr: map[string]int{}}
 	err = m.parseQuestions(buf, domains, ptr)
 	if err != nil {
-		return m, err
+		return m, fmt.Errorf("unable to parse questions: %v",err)
 	}
-	err = m.parseRecords(buf, domains, ptr, m.ancount, m.answers)
+	m.answers, err = m.parseRecords(buf, domains, ptr, m.ancount, m.answers)
 	if err != nil {
-		return m, err
+		return m, fmt.Errorf("unable to parse answers: %v",err)
 	}
-	err = m.parseRecords(buf, domains, ptr, m.nscount, m.nameservers)
+	m.nameservers, err = m.parseRecords(buf, domains, ptr, m.nscount, m.nameservers)
 	if err != nil {
-		return m, err
+		return m, fmt.Errorf("unable to parse nameservers: %v",err)
 	}
-	err = m.parseRecords(buf, domains, ptr, m.arcount, m.additional)
+	m.additional, err = m.parseRecords(buf, domains, ptr, m.arcount, m.additional)
 	if err != nil {
-		return m, err
+		return m, fmt.Errorf("unable to parse additionals: %v",err)
 	}
 	return m, nil
 }
@@ -159,21 +160,22 @@ func (m *Message) parseQuestions(buf *bytes.Buffer, domains *Pointers, ptr int) 
 }
 
 func (m *Message) parseRecords(buf *bytes.Buffer, domains *Pointers, ptr int,
-	count uint16, list []Record) error {
+	count uint16, list []Record) ([]Record, error) {
 	bufLen := buf.Len()
 	for i := 0; i < int(count); i++ {
 		r, err := ParseRecord(buf, ptr, domains)
 		if err != nil {
-			return err
+			return list, err
 		}
 		list = append(list, r)
+		fmt.Printf("Records %v\n", list)
 		ptr = ptr + bufLen - buf.Len()
 		bufLen = buf.Len()
 	}
-	return nil
+	return list, nil
 }
 
-/*func (m *Message) Build(buf *bytes.Buffer, domains map[string]int) error {
+func (m *Message) Build(buf *bytes.Buffer, domains *Pointers) error {
 	m.qdcount = uint16(len(m.questions))
 	m.ancount = uint16(len(m.answers))
 	m.nscount = uint16(len(m.nameservers))
@@ -183,8 +185,41 @@ func (m *Message) parseRecords(buf *bytes.Buffer, domains *Pointers, ptr int,
 		return errors.New("Unable to build header")
 	}
 
-	err = m.buildQuestions(buf, domains, ptr)
+	err = m.buildQuestions(buf, domains)
 	if err != nil {
 		return err
 	}
-}*/
+	err = m.buildRecords(buf, domains, m.answers)
+	if err != nil {
+		return err
+	}
+	err = m.buildRecords(buf, domains, m.nameservers)
+	if err != nil {
+		return err
+	}
+	err = m.buildRecords(buf, domains, m.additional)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Message) buildQuestions(buf *bytes.Buffer, domains *Pointers) error {
+	for _, q := range m.questions {
+		err := q.Build(buf, domains)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *Message) buildRecords(buf *bytes.Buffer, domains *Pointers, records []Record) error {
+	for _, r := range records {
+		err := r.Build(buf, domains)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
