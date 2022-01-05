@@ -168,7 +168,6 @@ func (m *Message) parseRecords(buf *bytes.Buffer, domains *Pointers, ptr int,
 			return list, err
 		}
 		list = append(list, r)
-		fmt.Printf("Records %v\n", list)
 		ptr = ptr + bufLen - buf.Len()
 		bufLen = buf.Len()
 	}
