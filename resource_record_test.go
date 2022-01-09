@@ -10,8 +10,8 @@ import (
 
 func TestParseRecord(t *testing.T) {
 	type args struct {
-		buf      []byte
-		pointer  int
+		buf     []byte
+		pointer int
 		domains *Domains
 	}
 	tests := []struct {
@@ -23,7 +23,7 @@ func TestParseRecord(t *testing.T) {
 		{
 			name: "Simple AAAA record",
 			args: args{
-				buf:      []byte("\x06golang\x03com\x00\x00\x1c\x00\x01\x00\x00\x01\x2c\x00\x10\x26\x07\xf8\xb0\x40\x0b\x08\x02\x00\x00\x00\x00\x00\x00\x20\x11"),
+				buf:     []byte("\x06golang\x03com\x00\x00\x1c\x00\x01\x00\x00\x01\x2c\x00\x10\x26\x07\xf8\xb0\x40\x0b\x08\x02\x00\x00\x00\x00\x00\x00\x20\x11"),
 				domains: NewDomains(),
 			},
 			want: Record{
@@ -38,7 +38,7 @@ func TestParseRecord(t *testing.T) {
 		{
 			name: "Simple A record",
 			args: args{
-				buf:      []byte("\x06golang\x03com\x00\x00\x01\x00\x01\x00\x00\x01\x2c\x00\x04\x8e\xfb\x29\x51"),
+				buf:     []byte("\x06golang\x03com\x00\x00\x01\x00\x01\x00\x00\x01\x2c\x00\x04\x8e\xfb\x29\x51"),
 				domains: NewDomains(),
 			},
 			want: Record{
@@ -51,9 +51,9 @@ func TestParseRecord(t *testing.T) {
 			},
 		},
 		{
-			name: "Simple A record",
+			name: "Bad record type",
 			args: args{
-				buf:      []byte("\x06golang\x03com\x00\x00\x77\x00\x01\x00\x00\x01\x2c\x00\x04\x8e\xfb\x29\x51"),
+				buf:     []byte("\x06golang\x03com\x00\x00\x77\x00\x01\x00\x00\x01\x2c\x00\x04\x8e\xfb\x29\x51"),
 				domains: NewDomains(),
 			},
 			wantErr: true,
