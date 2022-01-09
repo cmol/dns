@@ -16,6 +16,11 @@ func ParseName(buf *bytes.Buffer, ptr int, domains *Domains) (string, error) {
 		return "", err
 	}
 
+	// root domain
+	if length == 0 {
+		return "", nil
+	}
+
 	for {
 		// Check if name is a pointer to an earlier refereced domain
 		if length&NAME_POINTER == NAME_POINTER {
@@ -48,6 +53,12 @@ func ParseName(buf *bytes.Buffer, ptr int, domains *Domains) (string, error) {
 }
 
 func BuildName(buf *bytes.Buffer, name string, domains *Domains) int {
+	// root domain
+	if len(name) == 0 {
+		buf.WriteByte('\x00')
+		return 1
+	}
+
 	writePtr := buf.Len()
 	written := 0
 	name = name + "."
