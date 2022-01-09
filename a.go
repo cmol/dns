@@ -26,3 +26,7 @@ func (ip *IPv4) Build(buf *bytes.Buffer, domains *Domains) error {
 	binary.Write(buf, binary.BigEndian, addr)
 	return nil
 }
+
+func (ip *IPv4) PreBuild() error {
+	return nil
+}

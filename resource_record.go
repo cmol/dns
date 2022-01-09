@@ -9,6 +9,7 @@ import (
 type RData interface {
 	Parse(*bytes.Buffer, *Domains) error
 	Build(*bytes.Buffer, *Domains) error
+	PreBuild() error
 }
 
 type Record struct {
@@ -41,29 +42,35 @@ func ParseRecord(buf *bytes.Buffer, pointer int, domains *Domains) (Record, erro
 		return Record{}, err
 	}
 
-	if r.Data, err = parseRData(buf, r.RType, domains); err != nil {
+	if err = r.parseRData(buf, domains); err != nil {
 		return Record{}, err
 	}
 
 	return r, nil
 }
 
-func parseRData(buf *bytes.Buffer, typ Type, domains *Domains) (RData, error) {
+func (r *Record) parseRData(buf *bytes.Buffer, domains *Domains) error {
 	var rdata RData
-	switch typ {
+	switch r.RType {
 	case A:
 		rdata = &IPv4{}
 	case AAAA:
 		rdata = &IPv6{}
+	case OPT:
+		rdata = &Opt{Record: r}
 	default:
-		return rdata, errors.New("Type not supported: " + RRTypeStrings[typ])
+		return errors.New("type not supported: " + RRTypeStrings[r.RType])
 	}
 	err := rdata.Parse(buf, domains)
-	return rdata, err
+	r.Data = rdata
+	return err
 }
 
 func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
 	BuildName(buf, r.Name, domains)
+	if err := r.Data.PreBuild(); err != nil {
+		return err
+	}
 	if err := binary.Write(buf, binary.BigEndian, r.RType); err != nil {
 		return err
 	}
