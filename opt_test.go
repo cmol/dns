@@ -57,7 +57,7 @@ func TestOpt_Parse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			o := &Opt{Record: tt.record}
-			if err := o.Parse(bytes.NewBuffer(tt.buf), NewDomains()); (err != nil) != tt.wantErr {
+			if err := o.Parse(bytes.NewBuffer(tt.buf), 0, NewDomains()); (err != nil) != tt.wantErr {
 				t.Errorf("Opt.Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -107,7 +107,7 @@ func TestOpt_PreBuild(t *testing.T) {
 				DNSSec:      tt.fields.DNSSec,
 				Record:      tt.fields.Record,
 			}
-			if err := o.PreBuild(); (err != nil) != tt.wantErr {
+			if _, err := o.PreBuild(NewDomains()); (err != nil) != tt.wantErr {
 				t.Errorf("Opt.PreBuild() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

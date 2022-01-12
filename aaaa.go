@@ -12,7 +12,7 @@ type IPv6 struct {
 	IP netaddr.IP
 }
 
-func (ip *IPv6) Parse(buf *bytes.Buffer, domains *Domains) error {
+func (ip *IPv6) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
 	var a [16]byte
 	if err := binary.Read(buf, binary.BigEndian, a[:]); err != nil {
 		return errors.New("Could not read IPv6 address")
@@ -21,12 +21,12 @@ func (ip *IPv6) Parse(buf *bytes.Buffer, domains *Domains) error {
 	return nil
 }
 
-func (ip *IPv6) Build(buf *bytes.Buffer, domains *Domains) error {
+func (ip *IPv6) Build(buf *bytes.Buffer) error {
 	addr := ip.IP.As16()
 	binary.Write(buf, binary.BigEndian, addr)
 	return nil
 }
 
-func (ip *IPv6) PreBuild() error {
-	return nil
+func (ip *IPv6) PreBuild(domains *Domains) (int, error) {
+	return 16, nil
 }

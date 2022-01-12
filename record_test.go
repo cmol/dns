@@ -118,6 +118,30 @@ func TestRecord_Build(t *testing.T) {
 			},
 			want: []byte("\x06golang\x03com\x00\x00\x01\x00\x01\x00\x00\x01\x2c\x00\x04\x8e\xfb\x29\x51"),
 		},
+		{
+			name: "Build Simple CNAME record",
+			args: args{domains: NewDomains()},
+			fields: fields{
+				TTL:   300,
+				Class: 1,
+				RType: CNAME,
+				Name:  "golang.com",
+				Data:  &CName{Name: "golang.org"},
+			},
+			want: []byte("\x06golang\x03com\x00\x00\x05\x00\x01\x00\x00\x01\x2c\x00\x0c\x06golang\x03org\x00"),
+		},
+		{
+			name: "Build CNAME record with subdomain pointer",
+			args: args{domains: NewDomains()},
+			fields: fields{
+				TTL:   300,
+				Class: 1,
+				RType: CNAME,
+				Name:  "golang.com",
+				Data:  &CName{Name: "sub.golang.com"},
+			},
+			want: []byte("\x06golang\x03com\x00\x00\x05\x00\x01\x00\x00\x01\x2c\x00\x06\x03sub\xc0\x00"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -7,9 +7,9 @@ import (
 )
 
 type RData interface {
-	Parse(*bytes.Buffer, *Domains) error
-	Build(*bytes.Buffer, *Domains) error
-	PreBuild() error
+	Parse(*bytes.Buffer, int, *Domains) error
+	Build(*bytes.Buffer) error
+	PreBuild(*Domains) (int, error)
 }
 
 type Record struct {
@@ -21,10 +21,11 @@ type Record struct {
 	Data        RData
 }
 
-func ParseRecord(buf *bytes.Buffer, pointer int, domains *Domains) (Record, error) {
+func ParseRecord(buf *bytes.Buffer, ptr int, domains *Domains) (Record, error) {
 	var err error
+	initialLen := buf.Len()
 	r := Record{}
-	r.Name, err = ParseName(buf, pointer, domains)
+	r.Name, err = ParseName(buf, ptr, domains)
 	if err != nil {
 		return Record{}, err
 	}
@@ -42,14 +43,14 @@ func ParseRecord(buf *bytes.Buffer, pointer int, domains *Domains) (Record, erro
 		return Record{}, err
 	}
 
-	if err = r.parseRData(buf, domains); err != nil {
+	if err = r.parseRData(buf, ptr+(initialLen-buf.Len()), domains); err != nil {
 		return Record{}, err
 	}
 
 	return r, nil
 }
 
-func (r *Record) parseRData(buf *bytes.Buffer, domains *Domains) error {
+func (r *Record) parseRData(buf *bytes.Buffer, ptr int, domains *Domains) error {
 	var rdata RData
 	switch r.RType {
 	case A:
@@ -61,16 +62,18 @@ func (r *Record) parseRData(buf *bytes.Buffer, domains *Domains) error {
 	default:
 		return errors.New("type not supported: " + RRTypeStrings[r.RType])
 	}
-	err := rdata.Parse(buf, domains)
+	err := rdata.Parse(buf, ptr, domains)
 	r.Data = rdata
 	return err
 }
 
 func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
 	BuildName(buf, r.Name, domains)
-	if err := r.Data.PreBuild(); err != nil {
+	length, err := r.Data.PreBuild(domains)
+	if err != nil {
 		return err
 	}
+	r.RDataLength = uint16(length)
 	if err := binary.Write(buf, binary.BigEndian, r.RType); err != nil {
 		return err
 	}
@@ -83,7 +86,7 @@ func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
 	if err := binary.Write(buf, binary.BigEndian, r.RDataLength); err != nil {
 		return err
 	}
-	if err := r.Data.Build(buf, domains); err != nil {
+	if err := r.Data.Build(buf); err != nil {
 		return err
 	}
 	return nil
