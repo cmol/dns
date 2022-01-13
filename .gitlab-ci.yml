@@ -17,6 +17,7 @@ unit_tests:
     - go vet $(go list ./... | grep -v /vendor/)
     - gotestsum --junitfile report.xml --format testname
   artifacts:
+    expire_in: 2 days
     reports:
       junit: report.xml
 
@@ -29,6 +30,7 @@ coverage:
     - gocover-cobertura < coverage.txt > coverage.xml
   coverage: /^coverage:\s(\d+(?:\.\d+)?%)/
   artifacts:
+    expire_in: 2 days
     reports:
       cobertura: coverage.xml
 
@@ -43,6 +45,7 @@ lint:
     # remove `--issues-exit-code 0` or set to non-zero to fail the job if linting issues are detected
     - golangci-lint run --out-format code-climate | tee gl-code-quality-report.json | jq -r '.[] | "\(.location.path):\(.location.lines.begin) \(.description)"'
   artifacts:
+    expire_in: 2 days
     reports:
       codequality: gl-code-quality-report.json
     paths:
