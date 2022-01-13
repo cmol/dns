@@ -86,8 +86,6 @@ func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
 	if err := binary.Write(buf, binary.BigEndian, r.RDataLength); err != nil {
 		return err
 	}
-	if err := r.Data.Build(buf); err != nil {
-		return err
-	}
-	return nil
+	err := r.Data.Build(buf)
+	return err
 }
