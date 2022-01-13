@@ -29,10 +29,10 @@ func (o *Opt) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
 		var code uint16
 		var length uint16
 		if err := binary.Read(buf, binary.BigEndian, &code); err != nil {
-			return fmt.Errorf("unable to read variable OPT code: %v", err)
+			return fmt.Errorf("unable to read variable OPT code: %w", err)
 		}
 		if err := binary.Read(buf, binary.BigEndian, &length); err != nil {
-			return fmt.Errorf("unable to read variable OPT length: %v", err)
+			return fmt.Errorf("unable to read variable OPT length: %w", err)
 		}
 		o.Options[code] = buf.Next(int(length))
 		readLen = readLen - length - 4

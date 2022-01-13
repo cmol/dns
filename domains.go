@@ -19,7 +19,7 @@ func (p *Domains) SetParse(ptr int, name string) {
 	ok := true
 	for i, c := range name {
 		if ok {
-			p.parsePtr[ptr+i] = name[i:len(name)]
+			p.parsePtr[ptr+i] = name[i:]
 			ok = false
 		} else if c == '.' {
 			ok = true
@@ -31,7 +31,7 @@ func (p *Domains) SetBuild(ptr int, name string) {
 	ok := true
 	for i, c := range name {
 		if ok {
-			p.buildPtr[name[i:len(name)]] = ptr + i
+			p.buildPtr[name[i:]] = ptr + i
 			ok = false
 		} else if c == '.' {
 			ok = true

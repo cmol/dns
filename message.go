@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-const HDR_LENGTH = 12
+const HdrLength = 12
 
 type Message struct {
 	id          uint16
@@ -91,22 +91,22 @@ func (m *Message) BuildHeader(buf *bytes.Buffer) error {
 func (m *Message) parseOpts(opts uint16) {
 	m.rcode = uint8(opts & 0xf)
 	m.opcode = uint8((opts >> 11) & 0xf)
-	m.ra = opts&OPT_RA == OPT_RA
-	m.rd = opts&OPT_RD == OPT_RD
-	m.tc = opts&OPT_TC == OPT_TC
-	m.aa = opts&OPT_AA == OPT_AA
-	m.qr = opts&OPT_QR == OPT_QR
+	m.ra = opts&OptRa == OptRa
+	m.rd = opts&OptRd == OptRd
+	m.tc = opts&OptTc == OptTc
+	m.aa = opts&OptAa == OptAa
+	m.qr = opts&OptQr == OptQr
 }
 
 func (m *Message) buildOpts() uint16 {
 	var opts uint16
 	opts |= (uint16(m.rcode) & 0x000f)
 	opts |= (uint16(m.opcode) & 0x000f) << 11
-	opts |= opt(m.ra, OPT_RA)
-	opts |= opt(m.rd, OPT_RD)
-	opts |= opt(m.tc, OPT_TC)
-	opts |= opt(m.aa, OPT_AA)
-	opts |= opt(m.qr, OPT_QR)
+	opts |= opt(m.ra, OptRa)
+	opts |= opt(m.rd, OptRd)
+	opts |= opt(m.tc, OptTc)
+	opts |= opt(m.aa, OptAa)
+	opts |= opt(m.qr, OptQr)
 	return opts
 }
 
@@ -124,23 +124,23 @@ func ParseMessage(buf *bytes.Buffer) (*Message, error) {
 	if err != nil {
 		return m, err
 	}
-	ptr := HDR_LENGTH
+	ptr := HdrLength
 	domains := &Domains{parsePtr: map[int]string{}, buildPtr: map[string]int{}}
 	err = m.parseQuestions(buf, domains, ptr)
 	if err != nil {
-		return m, fmt.Errorf("unable to parse questions: %v",err)
+		return m, fmt.Errorf("unable to parse questions: %w", err)
 	}
 	m.answers, err = m.parseRecords(buf, domains, ptr, m.ancount, m.answers)
 	if err != nil {
-		return m, fmt.Errorf("unable to parse answers: %v",err)
+		return m, fmt.Errorf("unable to parse answers: %w", err)
 	}
 	m.nameservers, err = m.parseRecords(buf, domains, ptr, m.nscount, m.nameservers)
 	if err != nil {
-		return m, fmt.Errorf("unable to parse nameservers: %v",err)
+		return m, fmt.Errorf("unable to parse nameservers: %w", err)
 	}
 	m.additional, err = m.parseRecords(buf, domains, ptr, m.arcount, m.additional)
 	if err != nil {
-		return m, fmt.Errorf("unable to parse additionals: %v",err)
+		return m, fmt.Errorf("unable to parse additionals: %w", err)
 	}
 	return m, nil
 }
