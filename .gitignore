@@ -24,3 +24,7 @@
 /Godeps/
 
 # End of https://www.toptal.com/developers/gitignore/api/go
+
+# Test coverage reports
+coverage.txt
+coverage.xml
