@@ -51,6 +51,6 @@ func (o *Opt) PreBuild(domains *Domains) (int, error) {
 	return 1, nil
 }
 
-func (o *Opt) Build(buf *bytes.Buffer) error {
+func (o *Opt) Build(buf *bytes.Buffer, domains *Domains) error {
 	return nil
 }

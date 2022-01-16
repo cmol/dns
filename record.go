@@ -8,7 +8,7 @@ import (
 
 type RData interface {
 	Parse(*bytes.Buffer, int, *Domains) error
-	Build(*bytes.Buffer) error
+	Build(*bytes.Buffer, *Domains) error
 	PreBuild(*Domains) (int, error)
 }
 
@@ -68,7 +68,9 @@ func (r *Record) parseRData(buf *bytes.Buffer, ptr int, domains *Domains) error 
 }
 
 func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
-	BuildName(buf, r.Name, domains)
+	name := BuildName(r.Name, domains)
+	domains.SetBuild(buf.Len(), r.Name)
+	buf.WriteString(name)
 	length, err := r.Data.PreBuild(domains)
 	if err != nil {
 		return err
@@ -86,6 +88,6 @@ func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
 	if err := binary.Write(buf, binary.BigEndian, r.Length); err != nil {
 		return err
 	}
-	err = r.Data.Build(buf)
+	err = r.Data.Build(buf, domains)
 	return err
 }

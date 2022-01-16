@@ -76,7 +76,7 @@ func TestCName_Build(t *testing.T) {
 				}
 				return
 			}
-			if err := n.Build(buf); (err != nil) != tt.wantErr {
+			if err := n.Build(buf, NewDomains()); (err != nil) != tt.wantErr {
 				t.Errorf("CName.Build() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

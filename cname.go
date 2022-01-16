@@ -6,8 +6,8 @@ import (
 )
 
 type CName struct {
-	Name string
-	buf  []byte
+	Name  string
+	bytes string
 }
 
 func (n *CName) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
@@ -19,13 +19,13 @@ func (n *CName) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
 	return nil
 }
 
-func (n *CName) Build(buf *bytes.Buffer) error {
-	buf.Write(n.buf)
+func (n *CName) Build(buf *bytes.Buffer, domains *Domains) error {
+	domains.SetBuild(buf.Len(), n.Name)
+	buf.WriteString(n.bytes)
 	return nil
 }
+
 func (n *CName) PreBuild(domains *Domains) (int, error) {
-	buf := new(bytes.Buffer)
-	BuildName(buf, n.Name, domains)
-	n.buf = buf.Bytes()
-	return len(n.buf), nil
+	n.bytes = BuildName(n.Name, domains)
+	return len(n.bytes), nil
 }

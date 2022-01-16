@@ -2,7 +2,6 @@ package dnsmessage
 
 import (
 	"bytes"
-	"reflect"
 	"testing"
 )
 
@@ -126,75 +125,60 @@ func TestMessage_ParseName(t *testing.T) {
 
 func TestBuildName(t *testing.T) {
 	type args struct {
-		buf     *bytes.Buffer
 		name    string
 		domains *Domains
 	}
 	tests := []struct {
-		name       string
-		args       args
-		want       []byte
-		wantLength int
+		name string
+		args args
+		want string
 	}{
 		{
 			name: "single domain name",
 			args: args{
-				buf:     new(bytes.Buffer),
 				name:    "domain.test",
 				domains: &Domains{buildPtr: map[string]int{}},
 			},
-			want:       []byte("\x06domain\x04test\x00"),
-			wantLength: 13,
+			want: "\x06domain\x04test\x00",
 		},
 		{
 			name: "sub domain name",
 			args: args{
-				buf:     new(bytes.Buffer),
 				name:    "sub.domain.test",
 				domains: &Domains{buildPtr: map[string]int{}},
 			},
-			want:       []byte("\x03sub\x06domain\x04test\x00"),
-			wantLength: 17,
+			want: "\x03sub\x06domain\x04test\x00",
 		},
 		{
 			name: "cached domain name",
 			args: args{
-				buf:     new(bytes.Buffer),
 				name:    "domain.test",
 				domains: &Domains{buildPtr: map[string]int{"domain.test": 42}},
 			},
-			want:       []byte("\xc0\x2a"),
-			wantLength: 2,
+			want: "\xc0\x2a",
 		},
 		{
 			name: "mixed domain name",
 			args: args{
-				buf:     new(bytes.Buffer),
 				name:    "sub.domain.test",
 				domains: &Domains{buildPtr: map[string]int{"domain.test": 42}},
 			},
-			want:       []byte("\x03sub\xc0\x2a"),
-			wantLength: 6,
+			want: "\x03sub\xc0\x2a",
 		},
 		{
 			name: "root domain",
 			args: args{
-				buf:     new(bytes.Buffer),
 				name:    "",
 				domains: NewDomains(),
 			},
-			want:       []byte("\x00"),
-			wantLength: 1,
+			want: "\x00",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotLength := BuildName(tt.args.buf, tt.args.name, tt.args.domains)
-			if !reflect.DeepEqual(tt.args.buf.Bytes(), tt.want) {
-				t.Errorf("BuildName() got = %v, want %v", tt.args.buf.Bytes(), tt.want)
-			}
-			if gotLength != tt.wantLength {
-				t.Errorf("BuildName() got = %v, want %v", gotLength, tt.wantLength)
+			got := BuildName(tt.args.name, tt.args.domains)
+			if got != tt.want {
+				t.Errorf("BuildName() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

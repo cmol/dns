@@ -51,28 +51,26 @@ func ParseName(buf *bytes.Buffer, ptr int, domains *Domains) (string, error) {
 	return name.String(), nil
 }
 
-func BuildName(buf *bytes.Buffer, name string, domains *Domains) int {
+func BuildName(name string, domains *Domains) string {
 	// root domain
 	if len(name) == 0 {
-		buf.WriteByte('\x00')
-		return 1
+		return "\x00"
 	}
 
-	writePtr := buf.Len()
+	var buf bytes.Buffer
 	written := 0
 	name = name + "."
 	for i, c := range name {
 		if c == '.' {
 			if n, ok := domains.GetBuild(name[written : len(name)-1]); ok {
-				binary.Write(buf, binary.BigEndian, uint16(n|NamePointer<<8))
-				return written + 2
+				binary.Write(&buf, binary.BigEndian, uint16(n|NamePointer<<8))
+				return buf.String()
 			}
 			buf.WriteByte(uint8(i - written))
 			buf.WriteString(name[written:i])
 			written = written + (i - written) + 1
 		}
 	}
-	domains.SetBuild(writePtr, name[:len(name)-1])
 	buf.WriteByte('\x00')
-	return written + 1
+	return buf.String()
 }

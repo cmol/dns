@@ -21,7 +21,7 @@ func (ip *IPv6) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
 	return nil
 }
 
-func (ip *IPv6) Build(buf *bytes.Buffer) error {
+func (ip *IPv6) Build(buf *bytes.Buffer, domains *Domains) error {
 	addr := ip.IP.As16()
 	binary.Write(buf, binary.BigEndian, addr)
 	return nil

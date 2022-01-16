@@ -34,7 +34,9 @@ func (q *Question) Build(buf *bytes.Buffer, domains *Domains) error {
 		return errors.New("Domain or query type unset")
 	}
 
-	BuildName(buf, q.Domain, domains)
+	name := BuildName(q.Domain, domains)
+	domains.SetBuild(buf.Len(), q.Domain)
+	buf.WriteString(name)
 	err := binary.Write(buf, binary.BigEndian, q.Type)
 	if err != nil {
 		return err

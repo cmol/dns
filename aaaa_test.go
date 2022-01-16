@@ -60,7 +60,7 @@ func TestIPv6_Build(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ip := &IPv6{IP: tt.address}
 			buf := new(bytes.Buffer)
-			if err := ip.Build(buf); (err != nil) != tt.wantErr {
+			if err := ip.Build(buf, NewDomains()); (err != nil) != tt.wantErr {
 				t.Errorf("IPv4.Build() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
