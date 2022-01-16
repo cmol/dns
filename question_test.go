@@ -25,8 +25,8 @@ func TestParseQuestion(t *testing.T) {
 			},
 			want: Question{
 				Domain: "domain.test",
-				QType:  A,
-				QClass: IN,
+				Type:   A,
+				Class:  IN,
 			},
 			wantErr: false,
 		},
@@ -57,8 +57,8 @@ func TestParseQuestion(t *testing.T) {
 func TestQuestion_Build(t *testing.T) {
 	type fields struct {
 		Domain string
-		QType  Type
-		QClass Class
+		Type   Type
+		Class  Class
 	}
 	tests := []struct {
 		name    string
@@ -70,8 +70,8 @@ func TestQuestion_Build(t *testing.T) {
 			name: "Test simple question",
 			fields: fields{
 				Domain: "domain.test",
-				QType:  A,
-				QClass: IN,
+				Type:   A,
+				Class:  IN,
 			},
 			wantErr: false,
 			wantBuf: []byte("\x06domain\x04test\x00\x00\x01\x00\x01"),
@@ -80,8 +80,8 @@ func TestQuestion_Build(t *testing.T) {
 			name: "Question with missing Type",
 			fields: fields{
 				Domain: "domain.test",
-				QType:  0,
-				QClass: IN,
+				Type:   0,
+				Class:  IN,
 			},
 			wantErr: true,
 		},
@@ -90,8 +90,8 @@ func TestQuestion_Build(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			q := &Question{
 				Domain: tt.fields.Domain,
-				QType:  tt.fields.QType,
-				QClass: tt.fields.QClass,
+				Type:   tt.fields.Type,
+				Class:  tt.fields.Class,
 			}
 			b := new(bytes.Buffer)
 			if err := q.Build(b, NewDomains()); (err != nil) != tt.wantErr {

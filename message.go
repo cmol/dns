@@ -10,28 +10,28 @@ import (
 const HdrLength = 12
 
 type Message struct {
-	id          uint16
-	qr          bool
-	opcode      uint8
-	aa          bool
-	tc          bool
-	rd          bool
-	ra          bool
-	rcode       uint8
+	ID          uint16
+	QR          bool
+	OPCode      uint8
+	AA          bool
+	TC          bool
+	RD          bool
+	RA          bool
+	RCode       uint8
 	qdcount     uint16
 	ancount     uint16
 	nscount     uint16
 	arcount     uint16
-	questions   []Question
-	answers     []Record
-	nameservers []Record
-	additional  []Record
+	Questions   []Question
+	Answers     []Record
+	Nameservers []Record
+	Additional  []Record
 }
 
 func (m *Message) ParseHeader(buf *bytes.Buffer) error {
 	var opts uint16
 	var err error
-	err = binary.Read(buf, binary.BigEndian, &m.id)
+	err = binary.Read(buf, binary.BigEndian, &m.ID)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func (m *Message) ParseHeader(buf *bytes.Buffer) error {
 
 func (m *Message) BuildHeader(buf *bytes.Buffer) error {
 	var err error
-	err = binary.Write(buf, binary.BigEndian, m.id)
+	err = binary.Write(buf, binary.BigEndian, m.ID)
 	if err != nil {
 		return err
 	}
@@ -89,24 +89,24 @@ func (m *Message) BuildHeader(buf *bytes.Buffer) error {
 }
 
 func (m *Message) parseOpts(opts uint16) {
-	m.rcode = uint8(opts & 0xf)
-	m.opcode = uint8((opts >> 11) & 0xf)
-	m.ra = opts&OptRa == OptRa
-	m.rd = opts&OptRd == OptRd
-	m.tc = opts&OptTc == OptTc
-	m.aa = opts&OptAa == OptAa
-	m.qr = opts&OptQr == OptQr
+	m.RCode = uint8(opts & 0xf)
+	m.OPCode = uint8((opts >> 11) & 0xf)
+	m.RA = opts&OptRa == OptRa
+	m.RD = opts&OptRd == OptRd
+	m.TC = opts&OptTc == OptTc
+	m.AA = opts&OptAa == OptAa
+	m.QR = opts&OptQr == OptQr
 }
 
 func (m *Message) buildOpts() uint16 {
 	var opts uint16
-	opts |= (uint16(m.rcode) & 0x000f)
-	opts |= (uint16(m.opcode) & 0x000f) << 11
-	opts |= opt(m.ra, OptRa)
-	opts |= opt(m.rd, OptRd)
-	opts |= opt(m.tc, OptTc)
-	opts |= opt(m.aa, OptAa)
-	opts |= opt(m.qr, OptQr)
+	opts |= (uint16(m.RCode) & 0x000f)
+	opts |= (uint16(m.OPCode) & 0x000f) << 11
+	opts |= opt(m.RA, OptRa)
+	opts |= opt(m.RD, OptRd)
+	opts |= opt(m.TC, OptTc)
+	opts |= opt(m.AA, OptAa)
+	opts |= opt(m.QR, OptQr)
 	return opts
 }
 
@@ -130,15 +130,15 @@ func ParseMessage(buf *bytes.Buffer) (*Message, error) {
 	if err != nil {
 		return m, fmt.Errorf("unable to parse questions: %w", err)
 	}
-	m.answers, err = m.parseRecords(buf, domains, ptr, m.ancount, m.answers)
+	m.Answers, err = m.parseRecords(buf, domains, ptr, m.ancount, m.Answers)
 	if err != nil {
 		return m, fmt.Errorf("unable to parse answers: %w", err)
 	}
-	m.nameservers, err = m.parseRecords(buf, domains, ptr, m.nscount, m.nameservers)
+	m.Nameservers, err = m.parseRecords(buf, domains, ptr, m.nscount, m.Nameservers)
 	if err != nil {
 		return m, fmt.Errorf("unable to parse nameservers: %w", err)
 	}
-	m.additional, err = m.parseRecords(buf, domains, ptr, m.arcount, m.additional)
+	m.Additional, err = m.parseRecords(buf, domains, ptr, m.arcount, m.Additional)
 	if err != nil {
 		return m, fmt.Errorf("unable to parse additionals: %w", err)
 	}
@@ -152,7 +152,7 @@ func (m *Message) parseQuestions(buf *bytes.Buffer, domains *Domains, ptr int) e
 		if err != nil {
 			return err
 		}
-		m.questions = append(m.questions, q)
+		m.Questions = append(m.Questions, q)
 		ptr = ptr + bufLen - buf.Len()
 		bufLen = buf.Len()
 	}
@@ -175,10 +175,10 @@ func (m *Message) parseRecords(buf *bytes.Buffer, domains *Domains, ptr int,
 }
 
 func (m *Message) Build(buf *bytes.Buffer, domains *Domains) error {
-	m.qdcount = uint16(len(m.questions))
-	m.ancount = uint16(len(m.answers))
-	m.nscount = uint16(len(m.nameservers))
-	m.arcount = uint16(len(m.additional))
+	m.qdcount = uint16(len(m.Questions))
+	m.ancount = uint16(len(m.Answers))
+	m.nscount = uint16(len(m.Nameservers))
+	m.arcount = uint16(len(m.Additional))
 	err := m.BuildHeader(buf)
 	if err != nil {
 		return errors.New("Unable to build header")
@@ -188,15 +188,15 @@ func (m *Message) Build(buf *bytes.Buffer, domains *Domains) error {
 	if err != nil {
 		return err
 	}
-	err = m.buildRecords(buf, domains, m.answers)
+	err = m.buildRecords(buf, domains, m.Answers)
 	if err != nil {
 		return err
 	}
-	err = m.buildRecords(buf, domains, m.nameservers)
+	err = m.buildRecords(buf, domains, m.Nameservers)
 	if err != nil {
 		return err
 	}
-	err = m.buildRecords(buf, domains, m.additional)
+	err = m.buildRecords(buf, domains, m.Additional)
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func (m *Message) Build(buf *bytes.Buffer, domains *Domains) error {
 }
 
 func (m *Message) buildQuestions(buf *bytes.Buffer, domains *Domains) error {
-	for _, q := range m.questions {
+	for _, q := range m.Questions {
 		err := q.Build(buf, domains)
 		if err != nil {
 			return err

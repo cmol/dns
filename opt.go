@@ -23,7 +23,7 @@ func (o *Opt) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
 		o.DNSSec = true
 	}
 
-	readLen := o.Record.RDataLength
+	readLen := o.Record.Length
 	o.Options = map[uint16][]byte{}
 	for readLen > 0 {
 		var code uint16

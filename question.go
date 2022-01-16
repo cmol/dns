@@ -8,8 +8,8 @@ import (
 
 type Question struct {
 	Domain string
-	QType  Type
-	QClass Class
+	Type   Type
+	Class  Class
 }
 
 func ParseQuestion(buf *bytes.Buffer, pointer int, domains *Domains) (Question, error) {
@@ -19,10 +19,10 @@ func ParseQuestion(buf *bytes.Buffer, pointer int, domains *Domains) (Question, 
 		return Question{}, err
 	}
 	q.Domain = dom
-	if err := binary.Read(buf, binary.BigEndian, &q.QType); err != nil {
+	if err := binary.Read(buf, binary.BigEndian, &q.Type); err != nil {
 		return Question{}, err
 	}
-	if err := binary.Read(buf, binary.BigEndian, &q.QClass); err != nil {
+	if err := binary.Read(buf, binary.BigEndian, &q.Class); err != nil {
 		return Question{}, err
 	}
 
@@ -30,16 +30,16 @@ func ParseQuestion(buf *bytes.Buffer, pointer int, domains *Domains) (Question, 
 }
 
 func (q *Question) Build(buf *bytes.Buffer, domains *Domains) error {
-	if q.Domain == "" || q.QType == 0 || q.QClass == 0 {
+	if q.Domain == "" || q.Type == 0 || q.Class == 0 {
 		return errors.New("Domain or query type unset")
 	}
 
 	BuildName(buf, q.Domain, domains)
-	err := binary.Write(buf, binary.BigEndian, q.QType)
+	err := binary.Write(buf, binary.BigEndian, q.Type)
 	if err != nil {
 		return err
 	}
-	err = binary.Write(buf, binary.BigEndian, q.QClass)
+	err = binary.Write(buf, binary.BigEndian, q.Class)
 	if err != nil {
 		return err
 	}

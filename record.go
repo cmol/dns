@@ -13,12 +13,12 @@ type RData interface {
 }
 
 type Record struct {
-	TTL         uint32
-	Class       uint16
-	RDataLength uint16
-	RType       Type
-	Name        string
-	Data        RData
+	TTL    uint32
+	Class  uint16
+	Length uint16
+	Type   Type
+	Name   string
+	Data   RData
 }
 
 func ParseRecord(buf *bytes.Buffer, ptr int, domains *Domains) (Record, error) {
@@ -30,7 +30,7 @@ func ParseRecord(buf *bytes.Buffer, ptr int, domains *Domains) (Record, error) {
 		return Record{}, err
 	}
 
-	if err = binary.Read(buf, binary.BigEndian, &r.RType); err != nil {
+	if err = binary.Read(buf, binary.BigEndian, &r.Type); err != nil {
 		return Record{}, err
 	}
 	if err = binary.Read(buf, binary.BigEndian, &r.Class); err != nil {
@@ -39,7 +39,7 @@ func ParseRecord(buf *bytes.Buffer, ptr int, domains *Domains) (Record, error) {
 	if err = binary.Read(buf, binary.BigEndian, &r.TTL); err != nil {
 		return Record{}, err
 	}
-	if err = binary.Read(buf, binary.BigEndian, &r.RDataLength); err != nil {
+	if err = binary.Read(buf, binary.BigEndian, &r.Length); err != nil {
 		return Record{}, err
 	}
 
@@ -52,7 +52,7 @@ func ParseRecord(buf *bytes.Buffer, ptr int, domains *Domains) (Record, error) {
 
 func (r *Record) parseRData(buf *bytes.Buffer, ptr int, domains *Domains) error {
 	var rdata RData
-	switch r.RType {
+	switch r.Type {
 	case A:
 		rdata = &IPv4{}
 	case AAAA:
@@ -60,7 +60,7 @@ func (r *Record) parseRData(buf *bytes.Buffer, ptr int, domains *Domains) error 
 	case OPT:
 		rdata = &Opt{Record: r}
 	default:
-		return errors.New("type not supported: " + RRTypeStrings[r.RType])
+		return errors.New("type not supported: " + RRTypeStrings[r.Type])
 	}
 	err := rdata.Parse(buf, ptr, domains)
 	r.Data = rdata
@@ -73,8 +73,8 @@ func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
 	if err != nil {
 		return err
 	}
-	r.RDataLength = uint16(length)
-	if err := binary.Write(buf, binary.BigEndian, r.RType); err != nil {
+	r.Length = uint16(length)
+	if err := binary.Write(buf, binary.BigEndian, r.Type); err != nil {
 		return err
 	}
 	if err := binary.Write(buf, binary.BigEndian, r.Class); err != nil {
@@ -83,7 +83,7 @@ func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
 	if err := binary.Write(buf, binary.BigEndian, r.TTL); err != nil {
 		return err
 	}
-	if err := binary.Write(buf, binary.BigEndian, r.RDataLength); err != nil {
+	if err := binary.Write(buf, binary.BigEndian, r.Length); err != nil {
 		return err
 	}
 	err = r.Data.Build(buf)

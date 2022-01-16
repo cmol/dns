@@ -44,8 +44,8 @@ func TestOpt_Parse(t *testing.T) {
 		{
 			name: "Opt extra options",
 			record: &Record{
-				Class:       512,
-				RDataLength: 6,
+				Class:  512,
+				Length: 6,
 			},
 			buf: []byte("\x00\x05\x00\x02\xab\xab"),
 			want: &Opt{
