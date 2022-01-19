@@ -222,3 +222,12 @@ func (m *Message) buildRecords(buf *bytes.Buffer, domains *Domains, records []Re
 	}
 	return nil
 }
+
+func ReplyTo(other *Message) *Message {
+	m := &Message{
+		ID:        other.ID,
+		QR:        true,
+		Questions: other.Questions,
+	}
+	return m
+}
