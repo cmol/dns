@@ -9,7 +9,7 @@ import (
 type RData interface {
 	Parse(*bytes.Buffer, int, *Domains) error
 	Build(*bytes.Buffer, *Domains) error
-	PreBuild(*Domains) (int, error)
+	PreBuild(*Record, *Domains) (int, error)
 }
 
 type Record struct {
@@ -71,7 +71,7 @@ func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
 	name := BuildName(r.Name, domains)
 	domains.SetBuild(buf.Len(), r.Name)
 	buf.WriteString(name)
-	length, err := r.Data.PreBuild(domains)
+	length, err := r.Data.PreBuild(r, domains)
 	if err != nil {
 		return err
 	}

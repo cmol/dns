@@ -25,7 +25,7 @@ func (n *CName) Build(buf *bytes.Buffer, domains *Domains) error {
 	return nil
 }
 
-func (n *CName) PreBuild(domains *Domains) (int, error) {
+func (n *CName) PreBuild(r *Record, domains *Domains) (int, error) {
 	n.bytes = BuildName(n.Name, domains)
 	return len(n.bytes), nil
 }

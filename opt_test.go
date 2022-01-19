@@ -90,7 +90,6 @@ func TestOpt_PreBuild(t *testing.T) {
 				RCode:       0xb2,
 				EDNSVersion: 0x03,
 				DNSSec:      true,
-				Record:      &Record{},
 			},
 			want: &Record{
 				Class: 512,
@@ -105,14 +104,38 @@ func TestOpt_PreBuild(t *testing.T) {
 				RCode:       tt.fields.RCode,
 				EDNSVersion: tt.fields.EDNSVersion,
 				DNSSec:      tt.fields.DNSSec,
-				Record:      tt.fields.Record,
 			}
-			if _, err := o.PreBuild(NewDomains()); (err != nil) != tt.wantErr {
+			r := &Record{}
+			if _, err := o.PreBuild(r, NewDomains()); (err != nil) != tt.wantErr {
 				t.Errorf("Opt.PreBuild() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(o.Record, tt.want) {
-				t.Errorf("Opt.PreBuild() = %v, want %v", o.Record, tt.want)
+			if !reflect.DeepEqual(r, tt.want) {
+				t.Errorf("Opt.PreBuild() = %v, want %v", r, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultOpt(t *testing.T) {
+	tests := []struct {
+		name string
+		size int
+		want []byte
+	}{
+		{
+			name: "Simple OPT",
+			size: 1680,
+			want: []byte("\x00\x00\x29\x06\x90\x00\x00\x00\x00\x00\x00"),
+		},
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			opt := DefaultOpt(tt.size)
+			if opt.Build(buf, NewDomains()); !reflect.DeepEqual(buf.Bytes(), tt.want) {
+				t.Errorf("DefaultOpt() = %v, want %v", buf.Bytes(), tt.want)
 			}
 		})
 	}

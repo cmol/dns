@@ -27,6 +27,6 @@ func (ip *IPv6) Build(buf *bytes.Buffer, domains *Domains) error {
 	return nil
 }
 
-func (ip *IPv6) PreBuild(domains *Domains) (int, error) {
+func (ip *IPv6) PreBuild(r *Record, domains *Domains) (int, error) {
 	return 16, nil
 }

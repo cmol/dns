@@ -68,7 +68,7 @@ func TestCName_Build(t *testing.T) {
 				Name: tt.cname,
 			}
 			buf := new(bytes.Buffer)
-			if length, err := n.PreBuild(NewDomains()); err != nil || length != tt.wantLength {
+			if length, err := n.PreBuild(&Record{}, NewDomains()); err != nil || length != tt.wantLength {
 				if err != nil {
 					t.Errorf("CName.PreBuild() error = %v", err)
 				} else {

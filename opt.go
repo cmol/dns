@@ -40,17 +40,29 @@ func (o *Opt) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
 	return nil
 }
 
-func (o *Opt) PreBuild(domains *Domains) (int, error) {
+func (o *Opt) PreBuild(r *Record, domains *Domains) (int, error) {
 	var DNSSec uint32
 	if o.DNSSec {
 		DNSSec = 1
 	}
-	o.Record.Class = o.UDPSize
-	o.Record.TTL = (uint32(o.RCode) << 24) |
+	r.Class = o.UDPSize
+	r.TTL = (uint32(o.RCode) << 24) |
 		((uint32(o.EDNSVersion) & 0xff) << 16) | (DNSSec << 15)
-	return 1, nil
+	return 0, nil
 }
 
 func (o *Opt) Build(buf *bytes.Buffer, domains *Domains) error {
 	return nil
+}
+
+func DefaultOpt(size int) *Record {
+	r := &Record{
+		Name: "",
+		Type: OPT,
+	}
+	r.Data = &Opt{
+		UDPSize: uint16(size),
+		Record:  r,
+	}
+	return r
 }
