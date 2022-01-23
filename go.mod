@@ -1,4 +1,4 @@
-module gitlab.com/cmol/dnsmessage
+module github.com/cmol/dns
 
 go 1.16
 

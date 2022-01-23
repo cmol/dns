@@ -1,5 +1,5 @@
-PROJECT_NAME := "dnsmessage"
-PKG := "gitlab.com/cmol/$(PROJECT_NAME)"
+PROJECT_NAME := "dns"
+PKG := "github.com/cmol/$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 
