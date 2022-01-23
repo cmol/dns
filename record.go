@@ -59,6 +59,8 @@ func (r *Record) parseRData(buf *bytes.Buffer, ptr int, domains *Domains) error 
 		rdata = &IPv6{}
 	case OPT:
 		rdata = &Opt{Record: r}
+	case CNAME:
+		rdata = &CName{}
 	default:
 		return errors.New("type not supported: " + RRTypeStrings[r.Type])
 	}
