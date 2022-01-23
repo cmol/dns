@@ -1,4 +1,4 @@
-package dnsmessage
+package dns
 
 type Domains struct {
 	parsePtr map[int]string

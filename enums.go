@@ -1,4 +1,4 @@
-package dnsmessage
+package dns
 
 type Type uint16
 type Class uint16
