@@ -1,3 +1,4 @@
+// Package dns provides a fine grained DNS message parsing and building library
 package dns
 
 import (
@@ -7,8 +8,10 @@ import (
 	"fmt"
 )
 
+// HdrLength is the length of a DNS message header
 const HdrLength = 12
 
+// Message is the structure of an entire DNS message including subtypes
 type Message struct {
 	ID          uint16
 	QR          bool
@@ -28,6 +31,11 @@ type Message struct {
 	Additional  []Record
 }
 
+// ParseHeader parses a `*bytes.Buffer`, looking for a DNS header, and returns
+// an error based on the parsing success.
+//
+// It should be noted that a successful parse does not mean that the header is
+// valid.
 func (m *Message) ParseHeader(buf *bytes.Buffer) error {
 	var opts uint16
 	var err error
