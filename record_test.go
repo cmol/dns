@@ -164,3 +164,10 @@ func TestRecord_Build(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkRecordParsing(b *testing.B) {
+	buf := []byte("\x06golang\x03com\x00\x00\x1c\x00\x01\x00\x00\x01\x2c\x00\x10\x26\x07\xf8\xb0\x40\x0b\x08\x02\x00\x00\x00\x00\x00\x00\x20\x11")
+	for i := 0; i < b.N; i++ {
+		ParseRecord(bytes.NewBuffer(buf), 0, NewDomains())
+	}
+}

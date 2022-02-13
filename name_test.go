@@ -183,3 +183,10 @@ func TestBuildName(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkNameParsing(b *testing.B) {
+	buf := []byte("somerandomtext\x03sub\x06domain\x04test\x00")
+	for i := 0; i < b.N; i++ {
+		ParseName(bytes.NewBuffer(buf), 0, NewDomains())
+	}
+}

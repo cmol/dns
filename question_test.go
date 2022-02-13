@@ -104,3 +104,10 @@ func TestQuestion_Build(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkQuestionParsing(b *testing.B) {
+	buf := []byte("\x06domain\x04test\x00\x01\x00\x01")
+	for i := 0; i < b.N; i++ {
+		ParseQuestion(bytes.NewBuffer(buf), 0, NewDomains())
+	}
+}
