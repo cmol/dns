@@ -5,11 +5,11 @@ import (
 	"encoding/binary"
 	"errors"
 
-	"inet.af/netaddr"
+	"net/netip"
 )
 
 type IPv4 struct {
-	IP netaddr.IP
+	netip.Addr
 }
 
 func (ip *IPv4) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
@@ -17,12 +17,12 @@ func (ip *IPv4) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
 	if err := binary.Read(buf, binary.BigEndian, a[:]); err != nil {
 		return errors.New("Could not read IPv4 address")
 	}
-	ip.IP = netaddr.IPFrom4(a)
+	ip.Addr = netip.AddrFrom4(a)
 	return nil
 }
 
 func (ip *IPv4) Build(buf *bytes.Buffer, domains *Domains) error {
-	addr := ip.IP.As4()
+	addr := ip.As4()
 	binary.Write(buf, binary.BigEndian, addr)
 	return nil
 }

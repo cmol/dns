@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"inet.af/netaddr"
+	"net/netip"
 )
 
 func TestMessage_ParseHeader(t *testing.T) {
@@ -224,7 +224,7 @@ func TestParseMessage(t *testing.T) {
 					Length: 16,
 					Type:   AAAA,
 					Name:   "golang.org",
-					Data:   &IPv6{IP: netaddr.MustParseIP("2607:f8b0:400b:802::2011")},
+					Data:   &IPv6{Addr: netip.MustParseAddr("2607:f8b0:400b:802::2011")},
 				}},
 			},
 		},
@@ -289,7 +289,7 @@ func TestMessage_Build(t *testing.T) {
 					Length: 16,
 					Type:   AAAA,
 					Name:   "golang.org",
-					Data:   &IPv6{IP: netaddr.MustParseIP("2607:f8b0:400b:802::2011")},
+					Data:   &IPv6{Addr: netip.MustParseAddr("2607:f8b0:400b:802::2011")},
 				}},
 			},
 		},

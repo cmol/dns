@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"inet.af/netaddr"
+	"net/netip"
 )
 
 func TestIPv4_Parse(t *testing.T) {
@@ -21,7 +21,7 @@ func TestIPv4_Parse(t *testing.T) {
 		{
 			name: "Simple IPv4 address",
 			args: args{buf: []byte("\xC0\xA8\x16\xBC")},
-			want: IPv4{netaddr.MustParseIP("192.168.22.188")},
+			want: IPv4{netip.MustParseAddr("192.168.22.188")},
 		},
 		{
 			name:    "Not enough data in buffer",
@@ -45,7 +45,7 @@ func TestIPv4_Parse(t *testing.T) {
 
 func TestIPv4_Build(t *testing.T) {
 	type fields struct {
-		IP netaddr.IP
+		netip.Addr
 	}
 	tests := []struct {
 		name    string
@@ -55,14 +55,14 @@ func TestIPv4_Build(t *testing.T) {
 	}{
 		{
 			name:   "Build simple address",
-			fields: fields{netaddr.MustParseIP("192.168.22.188")},
+			fields: fields{netip.MustParseAddr("192.168.22.188")},
 			want:   []byte("\xC0\xA8\x16\xBC"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ip := &IPv4{
-				IP: tt.fields.IP,
+				Addr: tt.fields.Addr,
 			}
 			buf := new(bytes.Buffer)
 			if err := ip.Build(buf, NewDomains()); (err != nil) != tt.wantErr {

@@ -4,12 +4,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-
-	"inet.af/netaddr"
+	"net/netip"
 )
 
 type IPv6 struct {
-	IP netaddr.IP
+	netip.Addr
 }
 
 func (ip *IPv6) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
@@ -17,12 +16,12 @@ func (ip *IPv6) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
 	if err := binary.Read(buf, binary.BigEndian, a[:]); err != nil {
 		return errors.New("Could not read IPv6 address")
 	}
-	ip.IP = netaddr.IPFrom16(a)
+	ip.Addr = netip.AddrFrom16(a)
 	return nil
 }
 
 func (ip *IPv6) Build(buf *bytes.Buffer, domains *Domains) error {
-	addr := ip.IP.As16()
+	addr := ip.As16()
 	binary.Write(buf, binary.BigEndian, addr)
 	return nil
 }

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"inet.af/netaddr"
+	"net/netip"
 )
 
 func TestParseRecord(t *testing.T) {
@@ -32,7 +32,7 @@ func TestParseRecord(t *testing.T) {
 				Class:  1,
 				TTL:    300,
 				Length: 16,
-				Data:   &IPv6{netaddr.MustParseIP("2607:f8b0:400b:802::2011")},
+				Data:   &IPv6{netip.MustParseAddr("2607:f8b0:400b:802::2011")},
 			},
 		},
 		{
@@ -47,7 +47,7 @@ func TestParseRecord(t *testing.T) {
 				Class:  1,
 				TTL:    300,
 				Length: 4,
-				Data:   &IPv4{netaddr.MustParseIP("142.251.41.81")},
+				Data:   &IPv4{netip.MustParseAddr("142.251.41.81")},
 			},
 		},
 		{
@@ -101,7 +101,7 @@ func TestRecord_Build(t *testing.T) {
 				Length: 16,
 				Type:   AAAA,
 				Name:   "golang.com",
-				Data:   &IPv6{netaddr.MustParseIP("2607:f8b0:400b:802::2011")},
+				Data:   &IPv6{netip.MustParseAddr("2607:f8b0:400b:802::2011")},
 			},
 			want: []byte("\x06golang\x03com\x00\x00\x1c\x00\x01\x00\x00\x01\x2c\x00\x10\x26\x07\xf8\xb0\x40\x0b\x08\x02\x00\x00\x00\x00\x00\x00\x20\x11"),
 		},
@@ -114,7 +114,7 @@ func TestRecord_Build(t *testing.T) {
 				Length: 4,
 				Type:   A,
 				Name:   "golang.com",
-				Data:   &IPv4{netaddr.MustParseIP("142.251.41.81")},
+				Data:   &IPv4{netip.MustParseAddr("142.251.41.81")},
 			},
 			want: []byte("\x06golang\x03com\x00\x00\x01\x00\x01\x00\x00\x01\x2c\x00\x04\x8e\xfb\x29\x51"),
 		},
