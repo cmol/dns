@@ -27,11 +27,14 @@ func (p *Domains) SetParse(ptr int, name string) {
 	}
 }
 
+// SetBuild adds build pointers to the domain map
 func (p *Domains) SetBuild(ptr int, name string) {
 	ok := true
 	for i, c := range name {
 		if ok {
-			p.buildPtr[name[i:]] = ptr + i
+			if _, found := p.buildPtr[name[i:]]; !found {
+				p.buildPtr[name[i:]] = ptr + i
+			}
 			ok = false
 		} else if c == '.' {
 			ok = true
