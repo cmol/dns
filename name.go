@@ -6,9 +6,15 @@ import (
 	"errors"
 )
 
-const NamePointer = 0xc0
-const PointerMask = 0x3fff
+const (
+	// NamePointer indication byte
+	NamePointer = 0xc0
 
+	// PointerMask is the reverse of the indication byte for 16 bits
+	PointerMask = 0x3fff
+)
+
+// ParseName returns a name given a pointer
 func ParseName(buf *bytes.Buffer, ptr int, domains *Domains) (string, error) {
 	var name bytes.Buffer
 	length, err := buf.ReadByte()
@@ -30,7 +36,7 @@ func ParseName(buf *bytes.Buffer, ptr int, domains *Domains) (string, error) {
 			}
 			n, ok := domains.GetParse((int(length)<<8 | int(l2)) & PointerMask)
 			if !ok {
-				return "", errors.New("Name pointer points to nothing")
+				return "", errors.New("name pointer points to nothing")
 			}
 			name.WriteString(n)
 			return name.String(), nil
@@ -51,6 +57,7 @@ func ParseName(buf *bytes.Buffer, ptr int, domains *Domains) (string, error) {
 	return name.String(), nil
 }
 
+// BuildName returns a dns encoded name with pointers if possible
 func BuildName(name string, domains *Domains) string {
 	// root domain
 	if len(name) == 0 {
@@ -63,7 +70,7 @@ func BuildName(name string, domains *Domains) string {
 	for i, c := range name {
 		if c == '.' {
 			if n, ok := domains.GetBuild(name[written : len(name)-1]); ok {
-				binary.Write(&buf, binary.BigEndian, uint16(n|NamePointer<<8))
+				binary.Write(&buf, binary.BigEndian, uint16(NamePointer<<8|n&0xff))
 				return buf.String()
 			}
 			buf.WriteByte(uint8(i - written))

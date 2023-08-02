@@ -1,20 +1,24 @@
 package dns
 
+// Domains holds maps for parsing and building CNAME pointers
 type Domains struct {
 	parsePtr map[int]string
 	buildPtr map[string]int
 }
 
+// GetParse returns a domain for a given pointer
 func (p *Domains) GetParse(ptr int) (string, bool) {
 	name, ok := p.parsePtr[ptr]
 	return name, ok
 }
 
+// GetBuild returns af pointer for a given name
 func (p *Domains) GetBuild(name string) (int, bool) {
 	ptr, ok := p.buildPtr[name]
 	return ptr, ok
 }
 
+// SetParse adds parse pointers to the domain map
 func (p *Domains) SetParse(ptr int, name string) {
 	ok := true
 	for i, c := range name {
@@ -42,6 +46,7 @@ func (p *Domains) SetBuild(ptr int, name string) {
 	}
 }
 
+// NewDomains returns a new map for parsing and building
 func NewDomains() *Domains {
 	return &Domains{parsePtr: map[int]string{}, buildPtr: map[string]int{}}
 }

@@ -2,10 +2,10 @@ package dns
 
 import (
 	"bytes"
+	"encoding/hex"
+	"net/netip"
 	"reflect"
 	"testing"
-
-	"net/netip"
 )
 
 func TestMessage_ParseHeader(t *testing.T) {
@@ -293,6 +293,30 @@ func TestMessage_Build(t *testing.T) {
 				}},
 			},
 		},
+		{
+			name: "CNAME with sub reference",
+			want: []byte("\x00\x1d\x81\x80\x00\x01\x00\x01\x00\x00\x00\x00\x0f_acme-challenge\x06tester\x09ipv6check\x02me\x00\x00\x01\x00\x01\xc0\x0c\x00\x05\x00\x01\x00\x00\x01\x2c\x00\x17\x0f_acme-challenge\x04acme\xc0\x23"),
+			fields: fields{
+				id:      0x001d,
+				qr:      true,
+				rd:      true,
+				ra:      true,
+				qdcount: 1,
+				ancount: 1,
+				questions: []Question{{
+					Domain: "_acme-challenge.tester.ipv6check.me",
+					Type:   A,
+					Class:  1,
+				}},
+				answers: []Record{{
+					TTL:   300,
+					Class: 1,
+					Type:  CNAME,
+					Name:  "_acme-challenge.tester.ipv6check.me",
+					Data:  &CName{Name: "_acme-challenge.acme.ipv6check.me"},
+				}},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -320,7 +344,7 @@ func TestMessage_Build(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(buf.Bytes(), tt.want) {
-				t.Errorf("Message.Build() got = %v, want %v", buf.Bytes(), tt.want)
+				t.Errorf("Message.Build() got = \n%s\n, want \n%s\n", hex.Dump(buf.Bytes()), hex.Dump(tt.want))
 			}
 		})
 	}

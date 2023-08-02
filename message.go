@@ -67,6 +67,7 @@ func (m *Message) ParseHeader(buf *bytes.Buffer) error {
 	return nil
 }
 
+// BuildHeader writes DNS header to buf
 func (m *Message) BuildHeader(buf *bytes.Buffer) error {
 	var err error
 	err = binary.Write(buf, binary.BigEndian, m.ID)
@@ -125,6 +126,8 @@ func opt(flag bool, bit uint16) uint16 {
 	return 0
 }
 
+// ParseMessage creates a new Message containing parsed DNS information from
+// buf
 func ParseMessage(buf *bytes.Buffer) (*Message, error) {
 	m := new(Message)
 	var err error
@@ -168,7 +171,8 @@ func (m *Message) parseQuestions(buf *bytes.Buffer, domains *Domains, ptr int) e
 }
 
 func (m *Message) parseRecords(buf *bytes.Buffer, domains *Domains, ptr int,
-	count uint16, list []Record) ([]Record, error) {
+	count uint16, list []Record,
+) ([]Record, error) {
 	bufLen := buf.Len()
 	for i := 0; i < int(count); i++ {
 		r, err := ParseRecord(buf, ptr, domains)
@@ -182,6 +186,7 @@ func (m *Message) parseRecords(buf *bytes.Buffer, domains *Domains, ptr int,
 	return list, nil
 }
 
+// Build builds entire DNS message into buf
 func (m *Message) Build(buf *bytes.Buffer, domains *Domains) error {
 	m.qdcount = uint16(len(m.Questions))
 	m.ancount = uint16(len(m.Answers))
@@ -231,6 +236,7 @@ func (m *Message) buildRecords(buf *bytes.Buffer, domains *Domains, records []Re
 	return nil
 }
 
+// ReplyTo creates a reply Message from a Message
 func ReplyTo(other *Message) *Message {
 	m := &Message{
 		ID:        other.ID,

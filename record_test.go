@@ -2,10 +2,10 @@ package dns
 
 import (
 	"bytes"
+	"encoding/hex"
+	"net/netip"
 	"reflect"
 	"testing"
-
-	"net/netip"
 )
 
 func TestParseRecord(t *testing.T) {
@@ -142,6 +142,18 @@ func TestRecord_Build(t *testing.T) {
 			},
 			want: []byte("\x06golang\x03com\x00\x00\x05\x00\x01\x00\x00\x01\x2c\x00\x06\x03sub\xc0\x00"),
 		},
+		{
+			name: "Build CNAME record with subdomain pointer known issue",
+			args: args{domains: NewDomains()},
+			fields: fields{
+				TTL:   300,
+				Class: 1,
+				Type:  CNAME,
+				Name:  "_acme-challenge.tester.ipv6check.me",
+				Data:  &CName{Name: "_acme-challenge.acme.ipv6check.me"},
+			},
+			want: []byte("\x0f_acme-challenge\x06tester\x09ipv6check\x02me\x00\x00\x05\x00\x01\x00\x00\x01\x2c\x00\x17\x0f_acme-challenge\x04acme\xc0\x17"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -159,7 +171,7 @@ func TestRecord_Build(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(buf.Bytes(), tt.want) {
-				t.Errorf("Record.Build() = %v, want %v", buf.Bytes(), tt.want)
+				t.Errorf("Record.Build() = \n%s\n, want \n%s\n", hex.Dump(buf.Bytes()), hex.Dump(tt.want))
 			}
 		})
 	}
