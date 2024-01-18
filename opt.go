@@ -15,7 +15,7 @@ type Opt struct {
 	Options     map[uint16][]byte
 }
 
-func (o *Opt) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
+func (o *Opt) Parse(buf *bytes.Buffer, _ int, _ *Domains) error {
 	o.UDPSize = o.Record.Class
 	o.RCode = byte((o.Record.TTL >> 24) & 0xff)
 	o.EDNSVersion = byte((o.Record.TTL >> 16) & 0xff)
@@ -40,7 +40,7 @@ func (o *Opt) Parse(buf *bytes.Buffer, ptr int, domains *Domains) error {
 	return nil
 }
 
-func (o *Opt) PreBuild(r *Record, domains *Domains) (int, error) {
+func (o *Opt) PreBuild(r *Record, _ *Domains) (int, error) {
 	var DNSSec uint32
 	if o.DNSSec {
 		DNSSec = 1
@@ -51,7 +51,7 @@ func (o *Opt) PreBuild(r *Record, domains *Domains) (int, error) {
 	return 0, nil
 }
 
-func (o *Opt) Build(buf *bytes.Buffer, domains *Domains) error {
+func (o *Opt) Build(_ *bytes.Buffer, _ *Domains) error {
 	return nil
 }
 

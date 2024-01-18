@@ -29,7 +29,7 @@ func (n *CName) Build(buf *bytes.Buffer, domains *Domains) error {
 }
 
 // PreBuild implements CNAME pre building for interface RData
-func (n *CName) PreBuild(r *Record, domains *Domains) (int, error) {
+func (n *CName) PreBuild(_ *Record, domains *Domains) (int, error) {
 	n.bytes = BuildName(n.Name, domains)
 	return len(n.bytes), nil
 }

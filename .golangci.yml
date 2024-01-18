@@ -26,7 +26,6 @@ linters-settings:
 linters:
   enable:
     - asciicheck
-    - deadcode
     - dogsled
     - errorlint
     - exportloopref
@@ -40,11 +39,9 @@ linters:
     - nolintlint
     - revive
     - staticcheck
-    - structcheck
     - typecheck
     - unconvert
     - unused
-    - varcheck
     - whitespace
   disable:
     - errcheck
