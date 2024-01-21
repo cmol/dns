@@ -6,12 +6,14 @@ import (
 	"errors"
 )
 
+// RData interface for all record types
 type RData interface {
 	Parse(*bytes.Buffer, int, *Domains) error
 	Build(*bytes.Buffer, *Domains) error
 	PreBuild(*Record, *Domains) (int, error)
 }
 
+// Record struct used by record specific types
 type Record struct {
 	TTL    uint32
 	Class  uint16
@@ -21,6 +23,7 @@ type Record struct {
 	Data   RData
 }
 
+// ParseRecord is the generic entry to parsing all records
 func ParseRecord(buf *bytes.Buffer, ptr int, domains *Domains) (Record, error) {
 	var err error
 	initialLen := buf.Len()
@@ -69,6 +72,7 @@ func (r *Record) parseRData(buf *bytes.Buffer, ptr int, domains *Domains) error 
 	return err
 }
 
+// Build is the generic entry to building all records
 func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
 	name := BuildName(r.Name, domains)
 	domains.SetBuild(buf.Len(), r.Name)

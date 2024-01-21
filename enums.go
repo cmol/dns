@@ -1,7 +1,11 @@
 package dns
 
-type Type uint16
-type Class uint16
+type (
+	// Type is just a uint16
+	Type uint16
+	// Class is just a uint16
+	Class uint16
+)
 
 const (
 	OptRa = 0x80

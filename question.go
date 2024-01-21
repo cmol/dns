@@ -6,12 +6,14 @@ import (
 	"errors"
 )
 
+// Question holds single dns questions
 type Question struct {
 	Domain string
 	Type   Type
 	Class  Class
 }
 
+// ParseQuestion parses DNS question records
 func ParseQuestion(buf *bytes.Buffer, pointer int, domains *Domains) (Question, error) {
 	q := Question{}
 	dom, err := ParseName(buf, pointer, domains)
@@ -29,9 +31,10 @@ func ParseQuestion(buf *bytes.Buffer, pointer int, domains *Domains) (Question, 
 	return q, nil
 }
 
+// Build builds a DNS question record
 func (q *Question) Build(buf *bytes.Buffer, domains *Domains) error {
 	if q.Domain == "" || q.Type == 0 || q.Class == 0 {
-		return errors.New("Domain or query type unset")
+		return errors.New("domain or query type unset")
 	}
 
 	name := BuildName(q.Domain, domains)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+// Opt implements interface for RDATA
 type Opt struct {
 	UDPSize     uint16
 	RCode       byte
@@ -15,6 +16,7 @@ type Opt struct {
 	Options     map[uint16][]byte
 }
 
+// Parse implements OPT parsing for interface RData
 func (o *Opt) Parse(buf *bytes.Buffer, _ int, _ *Domains) error {
 	o.UDPSize = o.Record.Class
 	o.RCode = byte((o.Record.TTL >> 24) & 0xff)
@@ -40,6 +42,7 @@ func (o *Opt) Parse(buf *bytes.Buffer, _ int, _ *Domains) error {
 	return nil
 }
 
+// PreBuild implements OPT pre building for interface RData
 func (o *Opt) PreBuild(r *Record, _ *Domains) (int, error) {
 	var DNSSec uint32
 	if o.DNSSec {
@@ -51,10 +54,12 @@ func (o *Opt) PreBuild(r *Record, _ *Domains) (int, error) {
 	return 0, nil
 }
 
+// Build implements OPT building for interface RData
 func (o *Opt) Build(_ *bytes.Buffer, _ *Domains) error {
 	return nil
 }
 
+// DefaultOpt returns a standard OPT record
 func DefaultOpt(size int) *Record {
 	r := &Record{
 		Name: "",
