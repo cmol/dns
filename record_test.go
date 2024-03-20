@@ -36,6 +36,22 @@ func TestParseRecord(t *testing.T) {
 			},
 		},
 		{
+			name: "Simple AAAA record flush mDNS cache",
+			args: args{
+				buf:     []byte("\x06golang\x03com\x00\x00\x1c\x80\x01\x00\x00\x01\x2c\x00\x10\x26\x07\xf8\xb0\x40\x0b\x08\x02\x00\x00\x00\x00\x00\x00\x20\x11"),
+				domains: NewDomains(),
+			},
+			want: Record{
+				Name:       "golang.com",
+				Type:       AAAA,
+				CacheFlush: true,
+				Class:      1,
+				TTL:        300,
+				Length:     16,
+				Data:       &IPv6{netip.MustParseAddr("2607:f8b0:400b:802::2011")},
+			},
+		},
+		{
 			name: "Simple A record",
 			args: args{
 				buf:     []byte("\x06golang\x03com\x00\x00\x01\x00\x01\x00\x00\x01\x2c\x00\x04\x8e\xfb\x29\x51"),
@@ -75,12 +91,13 @@ func TestParseRecord(t *testing.T) {
 
 func TestRecord_Build(t *testing.T) {
 	type fields struct {
-		TTL    uint32
-		Class  uint16
-		Length uint16
-		Type   Type
-		Name   string
-		Data   RData
+		TTL        uint32
+		Class      uint16
+		CacheFlush bool
+		Length     uint16
+		Type       Type
+		Name       string
+		Data       RData
 	}
 	type args struct {
 		domains *Domains
@@ -104,6 +121,20 @@ func TestRecord_Build(t *testing.T) {
 				Data:   &IPv6{netip.MustParseAddr("2607:f8b0:400b:802::2011")},
 			},
 			want: []byte("\x06golang\x03com\x00\x00\x1c\x00\x01\x00\x00\x01\x2c\x00\x10\x26\x07\xf8\xb0\x40\x0b\x08\x02\x00\x00\x00\x00\x00\x00\x20\x11"),
+		},
+		{
+			name: "Build Simple AAAA record with mDNS CacheFlush",
+			args: args{domains: NewDomains()},
+			fields: fields{
+				TTL:        300,
+				Class:      1,
+				CacheFlush: true,
+				Length:     16,
+				Type:       AAAA,
+				Name:       "golang.com",
+				Data:       &IPv6{netip.MustParseAddr("2607:f8b0:400b:802::2011")},
+			},
+			want: []byte("\x06golang\x03com\x00\x00\x1c\x80\x01\x00\x00\x01\x2c\x00\x10\x26\x07\xf8\xb0\x40\x0b\x08\x02\x00\x00\x00\x00\x00\x00\x20\x11"),
 		},
 		{
 			name: "Build Simple A record",
@@ -158,12 +189,13 @@ func TestRecord_Build(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Record{
-				TTL:    tt.fields.TTL,
-				Class:  tt.fields.Class,
-				Length: tt.fields.Length,
-				Type:   tt.fields.Type,
-				Name:   tt.fields.Name,
-				Data:   tt.fields.Data,
+				TTL:        tt.fields.TTL,
+				Class:      tt.fields.Class,
+				Length:     tt.fields.Length,
+				Type:       tt.fields.Type,
+				Name:       tt.fields.Name,
+				Data:       tt.fields.Data,
+				CacheFlush: tt.fields.CacheFlush,
 			}
 			buf := new(bytes.Buffer)
 			if err := r.Build(buf, tt.args.domains); (err != nil) != tt.wantErr {

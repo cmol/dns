@@ -6,6 +6,9 @@ import (
 	"errors"
 )
 
+// CacheFlushBit holds the bit for the mDNS cache flush instruction
+const CacheFlushBit = 0x8000
+
 // RData interface for all record types
 type RData interface {
 	Parse(*bytes.Buffer, int, *Domains) error
@@ -15,12 +18,13 @@ type RData interface {
 
 // Record struct used by record specific types
 type Record struct {
-	TTL    uint32
-	Class  uint16
-	Length uint16
-	Type   Type
-	Name   string
-	Data   RData
+	TTL        uint32
+	Class      uint16
+	Length     uint16
+	Type       Type
+	Name       string
+	Data       RData
+	CacheFlush bool
 }
 
 // ParseRecord is the generic entry to parsing all records
@@ -45,6 +49,10 @@ func ParseRecord(buf *bytes.Buffer, ptr int, domains *Domains) (Record, error) {
 	if err = binary.Read(buf, binary.BigEndian, &r.Length); err != nil {
 		return Record{}, err
 	}
+
+	// Read and filter out mDNS CacheFlush bit
+	r.CacheFlush = (r.Class & CacheFlushBit) == CacheFlushBit
+	r.Class = r.Class & 0x7fff
 
 	if err = r.parseRData(buf, ptr+(initialLen-buf.Len()), domains); err != nil {
 		return Record{}, err
@@ -85,7 +93,12 @@ func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
 	if err := binary.Write(buf, binary.BigEndian, r.Type); err != nil {
 		return err
 	}
-	if err := binary.Write(buf, binary.BigEndian, r.Class); err != nil {
+	if r.CacheFlush {
+		err = binary.Write(buf, binary.BigEndian, r.Class|CacheFlushBit)
+	} else {
+		err = binary.Write(buf, binary.BigEndian, r.Class)
+	}
+	if err != nil {
 		return err
 	}
 	if err := binary.Write(buf, binary.BigEndian, r.TTL); err != nil {
