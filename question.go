@@ -8,10 +8,14 @@ import (
 
 // Question holds single dns questions
 type Question struct {
-	Domain string
-	Type   Type
-	Class  Class
+	Domain          string
+	Type            Type
+	Class           Class
+	UnicastResponse bool
 }
+
+// UnicastResponseBit holds the bit for the mDNS unicast response
+const UnicastResponseBit = 0x8000
 
 // ParseQuestion parses DNS question records
 func ParseQuestion(buf *bytes.Buffer, pointer int, domains *Domains) (Question, error) {
@@ -27,6 +31,10 @@ func ParseQuestion(buf *bytes.Buffer, pointer int, domains *Domains) (Question, 
 	if err := binary.Read(buf, binary.BigEndian, &q.Class); err != nil {
 		return Question{}, err
 	}
+
+	// Read and filter out mDNS unicast UnicastResponse bit
+	q.UnicastResponse = (q.Class & UnicastResponseBit) == UnicastResponseBit
+	q.Class = q.Class & 0x7fff
 
 	return q, nil
 }
@@ -44,7 +52,11 @@ func (q *Question) Build(buf *bytes.Buffer, domains *Domains) error {
 	if err != nil {
 		return err
 	}
-	err = binary.Write(buf, binary.BigEndian, q.Class)
+	if q.UnicastResponse {
+		err = binary.Write(buf, binary.BigEndian, q.Class|UnicastResponseBit)
+	} else {
+		err = binary.Write(buf, binary.BigEndian, q.Class)
+	}
 	if err != nil {
 		return err
 	}

@@ -24,9 +24,24 @@ func TestParseQuestion(t *testing.T) {
 				pointer: 0,
 			},
 			want: Question{
-				Domain: "domain.test",
-				Type:   A,
-				Class:  IN,
+				Domain:          "domain.test",
+				Type:            A,
+				Class:           IN,
+				UnicastResponse: false,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Simple mDNS single domain.test IN A question",
+			args: args{
+				buf:     []byte("\x06domain\x04test\x00\x00\x01\x80\x01"),
+				pointer: 0,
+			},
+			want: Question{
+				Domain:          "domain.test",
+				Type:            A,
+				Class:           IN,
+				UnicastResponse: true,
 			},
 			wantErr: false,
 		},
@@ -56,9 +71,10 @@ func TestParseQuestion(t *testing.T) {
 
 func TestQuestion_Build(t *testing.T) {
 	type fields struct {
-		Domain string
-		Type   Type
-		Class  Class
+		Domain          string
+		Type            Type
+		Class           Class
+		UnicastResponse bool
 	}
 	tests := []struct {
 		name    string
@@ -69,12 +85,24 @@ func TestQuestion_Build(t *testing.T) {
 		{
 			name: "Test simple question",
 			fields: fields{
-				Domain: "domain.test",
-				Type:   A,
-				Class:  IN,
+				Domain:          "domain.test",
+				Type:            A,
+				Class:           IN,
+				UnicastResponse: false,
 			},
 			wantErr: false,
 			wantBuf: []byte("\x06domain\x04test\x00\x00\x01\x00\x01"),
+		},
+		{
+			name: "Test simple mDNS with UnicastResponse question",
+			fields: fields{
+				Domain:          "domain.test",
+				Type:            A,
+				Class:           IN,
+				UnicastResponse: true,
+			},
+			wantErr: false,
+			wantBuf: []byte("\x06domain\x04test\x00\x00\x01\x80\x01"),
 		},
 		{
 			name: "Question with missing Type",
@@ -89,9 +117,10 @@ func TestQuestion_Build(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			q := &Question{
-				Domain: tt.fields.Domain,
-				Type:   tt.fields.Type,
-				Class:  tt.fields.Class,
+				Domain:          tt.fields.Domain,
+				Type:            tt.fields.Type,
+				Class:           tt.fields.Class,
+				UnicastResponse: tt.fields.UnicastResponse,
 			}
 			b := new(bytes.Buffer)
 			if err := q.Build(b, NewDomains()); (err != nil) != tt.wantErr {
