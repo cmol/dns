@@ -28,3 +28,6 @@
 # Test coverage reports
 coverage.txt
 coverage.xml
+
+# Examples
+/mdns
