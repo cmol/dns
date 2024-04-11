@@ -72,6 +72,8 @@ func (r *Record) parseRData(buf *bytes.Buffer, ptr int, domains *Domains) error 
 		rdata = &Opt{Record: r}
 	case CNAME:
 		rdata = &CName{}
+	case PTR:
+		rdata = &Ptr{}
 	default:
 		return errors.New("type not supported: " + RRTypeStrings[r.Type])
 	}
