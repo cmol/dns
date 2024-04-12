@@ -70,7 +70,7 @@ func (s *Srv) PreBuild(_ *Record, domains *Domains) (int, error) {
 }
 
 // TransformName adds service/proto/name fields of server record
-func (s *Srv) TransformName(name string) string {
+func (s *Srv) TransformName(_ string) string {
 	generatedName := ""
 	if len(s.Identifier) > 1 {
 		generatedName = s.Identifier + "."
