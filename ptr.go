@@ -33,3 +33,6 @@ func (n *Ptr) PreBuild(_ *Record, domains *Domains) (int, error) {
 	n.bytes = BuildName(n.Name, domains)
 	return len(n.bytes), nil
 }
+
+// TransformName satisfies the interface
+func (*Ptr) TransformName(name string) string { return name }

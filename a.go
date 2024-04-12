@@ -33,3 +33,6 @@ func (ip *IPv4) Build(buf *bytes.Buffer, _ *Domains) error {
 func (ip *IPv4) PreBuild(_ *Record, _ *Domains) (int, error) {
 	return 4, nil
 }
+
+// TransformName satisfies the interface
+func (*IPv4) TransformName(name string) string { return name }

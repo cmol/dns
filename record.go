@@ -14,6 +14,7 @@ type RData interface {
 	Parse(*bytes.Buffer, int, *Domains) error
 	Build(*bytes.Buffer, *Domains) error
 	PreBuild(*Record, *Domains) (int, error)
+	TransformName(string) string
 }
 
 // Record struct used by record specific types
@@ -74,6 +75,8 @@ func (r *Record) parseRData(buf *bytes.Buffer, ptr int, domains *Domains) error 
 		rdata = &CName{}
 	case PTR:
 		rdata = &Ptr{}
+	case SRV:
+		rdata = &Srv{NameBytes: r.Name}
 	default:
 		return errors.New("type not supported: " + RRTypeStrings[r.Type])
 	}
@@ -84,6 +87,7 @@ func (r *Record) parseRData(buf *bytes.Buffer, ptr int, domains *Domains) error 
 
 // Build is the generic entry to building all records
 func (r *Record) Build(buf *bytes.Buffer, domains *Domains) error {
+	r.Name = r.Data.TransformName(r.Name)
 	name := BuildName(r.Name, domains)
 	domains.SetBuild(buf.Len(), r.Name)
 	buf.WriteString(name)

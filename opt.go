@@ -71,3 +71,6 @@ func DefaultOpt(size int) *Record {
 	}
 	return r
 }
+
+// TransformName satisfies the interface
+func (*Opt) TransformName(name string) string { return name }
