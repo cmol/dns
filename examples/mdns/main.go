@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -49,6 +50,12 @@ func main() {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		fmt.Printf("Read %d bytes from %s%%%s containing: %+v\n", n, src.IP.String(), src.Zone, message)
+		fmt.Printf("Read %d bytes from %s%%%s containing: \n%s\n", n,
+			src.IP.String(), src.Zone, prettyPrint(message))
 	}
+}
+
+func prettyPrint(i any) string {
+	s, _ := json.MarshalIndent(i, "", "  ")
+	return string(s)
 }

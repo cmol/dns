@@ -3,7 +3,7 @@ package dns
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
+	"fmt"
 )
 
 const (
@@ -27,6 +27,8 @@ func ParseName(buf *bytes.Buffer, ptr int, domains *Domains) (string, error) {
 		return "", nil
 	}
 
+	newDomain := false
+
 	for {
 		// Check if name is a pointer to an earlier refereced domain
 		if length&NamePointer == NamePointer {
@@ -34,13 +36,19 @@ func ParseName(buf *bytes.Buffer, ptr int, domains *Domains) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			n, ok := domains.GetParse((int(length)<<8 | int(l2)) & PointerMask)
+			getPointer := (int(length)<<8 | int(l2)) & PointerMask
+			n, ok := domains.GetParse(getPointer)
 			if !ok {
-				return "", errors.New("name pointer points to nothing")
+				return "", fmt.Errorf("name pointer %d points to nothing, full map \n%+v",
+					getPointer, domains.parsePtr)
 			}
 			name.WriteString(n)
+			if newDomain {
+				domains.SetParse(ptr, name.String())
+			}
 			return name.String(), nil
 		}
+		newDomain = true
 		n := buf.Next(int(length))
 		name.Write(n)
 		length, err = buf.ReadByte()
