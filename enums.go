@@ -8,17 +8,24 @@ type (
 )
 
 const (
+	// OptRa describes if recursion is available
 	OptRa = 0x80
+	// OptRd describes if recursion is desired
 	OptRd = 0x100
+	// OptTc describes if the messages was truncated
 	OptTc = 0x200
+	// OptAa describes weither a response came from the authorative server
 	OptAa = 0x400
+	// OptQr describes if the message is a query (0) or response (1)
 	OptQr = 0x8000
 )
 
 const (
+	// IN is the standard class
 	IN Class = 1
 )
 
+// List of all DNS type constants
 const (
 	A          Type = 1
 	NS         Type = 2
@@ -45,7 +52,7 @@ const (
 	SSHFP      Type = 44
 	IPSECKEY   Type = 45
 	RRSIG      Type = 46
-	NSE        Type = 47
+	NSEC       Type = 47
 	DNSKEY     Type = 48
 	DHCID      Type = 49
 	NSEC3      Type = 50
@@ -72,6 +79,7 @@ const (
 	DLV        Type = 32769
 )
 
+// RRTypeStrings holds name mapping for DNS type constants
 var RRTypeStrings = map[Type]string{
 	A:          "A",
 	NS:         "NS",
@@ -98,7 +106,7 @@ var RRTypeStrings = map[Type]string{
 	SSHFP:      "SSHFP",
 	IPSECKEY:   "IPSECKEY",
 	RRSIG:      "RRSIG",
-	NSE:        "NSE",
+	NSEC:       "NSEC",
 	DNSKEY:     "DNSKEY",
 	DHCID:      "DHCID",
 	NSEC3:      "NSEC3",
