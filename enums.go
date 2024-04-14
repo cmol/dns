@@ -14,7 +14,7 @@ const (
 	OptRd = 0x100
 	// OptTc describes if the messages was truncated
 	OptTc = 0x200
-	// OptAa describes weither a response came from the authorative server
+	// OptAa describes weither a response came from the authoritative server
 	OptAa = 0x400
 	// OptQr describes if the message is a query (0) or response (1)
 	OptQr = 0x8000
