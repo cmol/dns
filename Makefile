@@ -2,8 +2,9 @@ PROJECT_NAME := "dns"
 PKG := "github.com/cmol/$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
+EXAMPLES := $(shell ls examples)
 
-.PHONY: all dep build clean test coverage coverhtml lint
+.PHONY: all dep build clean test coverage coverhtml lint examples
 
 all: build
 
@@ -31,8 +32,11 @@ dep: ## Get the dependencies
 build: dep ## Build the binary file
 	@go build -v $(PKG)
 
+examples: dep ## Build examples
+	@for example in $(EXAMPLES); do go build ./examples/$$example; done
+
 clean: ## Remove previous build
-	@rm -f $(PROJECT_NAME)
+	@rm -f $(PROJECT_NAME) $(EXAMPLES)
 
 help: ## Display this help screen
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
