@@ -6,7 +6,7 @@ EXAMPLES := $(shell ls examples)
 
 .PHONY: all dep build clean test coverage coverhtml lint examples
 
-all: build
+all: lint build
 
 lint: ## Lint the files
 	@golangci-lint run
