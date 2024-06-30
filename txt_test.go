@@ -9,9 +9,6 @@ import (
 func TestTxt_Parse(t *testing.T) {
 	type args struct {
 		buf        []byte
-		ptr        int
-		domains    *Domains
-		recordName string
 	}
 	tests := []struct {
 		name    string
