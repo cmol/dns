@@ -129,7 +129,7 @@ func opt(flag bool, bit uint16) uint16 {
 // ParseMessage creates a new Message containing parsed DNS information from
 // buf
 func ParseMessage(buf *bytes.Buffer) (*Message, error) {
-	m := new(Message)
+	m := &Message{}
 	var err error
 	err = m.ParseHeader(buf)
 	if err != nil {
@@ -194,7 +194,7 @@ func (m *Message) Build(buf *bytes.Buffer, domains *Domains) error {
 	m.arcount = uint16(len(m.Additional))
 	err := m.BuildHeader(buf)
 	if err != nil {
-		return errors.New("Unable to build header")
+		return errors.New("unable to build header")
 	}
 
 	err = m.buildQuestions(buf, domains)
