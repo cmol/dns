@@ -137,53 +137,53 @@ func ParseMessage(buf *bytes.Buffer) (*Message, error) {
 	}
 	ptr := HdrLength
 	domains := &Domains{parsePtr: map[int]string{}, buildPtr: map[string]int{}}
-	err = m.parseQuestions(buf, domains, ptr)
+	ptr, err = m.parseQuestions(buf, domains, ptr)
 	if err != nil {
 		return m, fmt.Errorf("unable to parse questions: %w", err)
 	}
-	m.Answers, err = m.parseRecords(buf, domains, ptr, m.ancount, m.Answers)
+	m.Answers, ptr, err = m.parseRecords(buf, domains, ptr, m.ancount, m.Answers)
 	if err != nil {
 		return m, fmt.Errorf("unable to parse answers: %w", err)
 	}
-	m.Nameservers, err = m.parseRecords(buf, domains, ptr, m.nscount, m.Nameservers)
+	m.Nameservers, ptr, err = m.parseRecords(buf, domains, ptr, m.nscount, m.Nameservers)
 	if err != nil {
 		return m, fmt.Errorf("unable to parse nameservers: %w", err)
 	}
-	m.Additional, err = m.parseRecords(buf, domains, ptr, m.arcount, m.Additional)
+	m.Additional, _, err = m.parseRecords(buf, domains, ptr, m.arcount, m.Additional)
 	if err != nil {
 		return m, fmt.Errorf("unable to parse additionals: %w", err)
 	}
 	return m, nil
 }
 
-func (m *Message) parseQuestions(buf *bytes.Buffer, domains *Domains, ptr int) error {
+func (m *Message) parseQuestions(buf *bytes.Buffer, domains *Domains, ptr int) (int, error) {
 	bufLen := buf.Len()
 	for i := 0; i < int(m.qdcount); i++ {
 		q, err := ParseQuestion(buf, ptr, domains)
 		if err != nil {
-			return err
+			return ptr, err
 		}
 		m.Questions = append(m.Questions, q)
 		ptr = ptr + bufLen - buf.Len()
 		bufLen = buf.Len()
 	}
-	return nil
+	return ptr, nil
 }
 
 func (m *Message) parseRecords(buf *bytes.Buffer, domains *Domains, ptr int,
 	count uint16, list []Record,
-) ([]Record, error) {
+) ([]Record, int, error) {
 	bufLen := buf.Len()
 	for i := 0; i < int(count); i++ {
 		r, err := ParseRecord(buf, ptr, domains)
 		if err != nil {
-			return list, err
+			return list, ptr, err
 		}
 		list = append(list, r)
 		ptr = ptr + bufLen - buf.Len()
 		bufLen = buf.Len()
 	}
-	return list, nil
+	return list, ptr, nil
 }
 
 // Build builds entire DNS message into buf
