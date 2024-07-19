@@ -78,7 +78,7 @@ func (r *Record) parseRData(buf *bytes.Buffer, ptr int, domains *Domains) error 
 	case SRV:
 		rdata = &Srv{NameBytes: r.Name}
 	case TXT:
-		rdata = &Txt{}
+		rdata = &Txt{Length: r.Length}
 	default:
 		return errors.New("type not supported: " + RRTypeStrings[r.Type])
 	}
