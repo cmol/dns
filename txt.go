@@ -14,22 +14,22 @@ type Txt struct {
 
 // Parse implements TXT parsing for interface RData
 func (t *Txt) Parse(buf *bytes.Buffer, _ int, _ *Domains) error {
-  var read uint = 0
+  var read uint
 	for {
-		len, err := buf.ReadByte()
+		length, err := buf.ReadByte()
 		if err != nil {
 			return err
 		}
 
-		if uint(len)+read > uint(t.Length) {
+		if uint(length)+read > uint(t.Length) {
       return fmt.Errorf(
         "txt record part length too long: %d > %d\nstrings read: %+v",
-        uint(len)+read, t.Length, t.Data,
+        uint(length)+read, t.Length, t.Data,
       )
 		}
 
-		t.Data = append(t.Data, string(buf.Next(int(len))))
-		read = read + uint(len) + 1
+		t.Data = append(t.Data, string(buf.Next(int(length))))
+		read = read + uint(length) + 1
 		if read == uint(t.Length) {
 			break
 		}

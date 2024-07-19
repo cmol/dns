@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	// srvAddr = "224.0.0.251:5353"
-	srvAddr     = "[ff02::fb]:5353"
+	srvAddr = "224.0.0.251:5353"
+	// srvAddr     = "[ff02::fb]:5353"
 	maxDatagram = 1500
 )
 
