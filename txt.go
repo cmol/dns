@@ -8,13 +8,13 @@ import (
 
 // Txt implements interface RData
 type Txt struct {
-  Length uint16
+	Length uint16
 	Data   []string
 }
 
 // Parse implements TXT parsing for interface RData
 func (t *Txt) Parse(buf *bytes.Buffer, _ int, _ *Domains) error {
-  var read uint
+	var read uint
 	for {
 		length, err := buf.ReadByte()
 		if err != nil {
@@ -22,10 +22,10 @@ func (t *Txt) Parse(buf *bytes.Buffer, _ int, _ *Domains) error {
 		}
 
 		if uint(length)+read > uint(t.Length) {
-      return fmt.Errorf(
-        "txt record part length too long: %d > %d\nstrings read: %+v",
-        uint(length)+read, t.Length, t.Data,
-      )
+			return fmt.Errorf(
+				"txt record part length too long: %d > %d\nstrings read: %+v",
+				uint(length)+read, t.Length, t.Data,
+			)
 		}
 
 		t.Data = append(t.Data, string(buf.Next(int(length))))
@@ -40,7 +40,7 @@ func (t *Txt) Parse(buf *bytes.Buffer, _ int, _ *Domains) error {
 // Build implements TXT building for interface RData
 func (t *Txt) Build(buf *bytes.Buffer, _ *Domains) error {
 	for _, part := range t.Data {
-    partLen := uint8(len(part))
+		partLen := uint8(len(part))
 		if err := binary.Write(buf, binary.BigEndian, partLen); err != nil {
 			return err
 		}

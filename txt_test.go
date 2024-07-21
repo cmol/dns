@@ -72,9 +72,9 @@ func TestTxt_Build(t *testing.T) {
 			name: "Simple TXT SFP record",
 			txt: Txt{
 				Length: 70,
-				Data:   []string {
-          "v=spf1 ip4:192.0.2.0/24 ip4:198.51.100.123 ip6:2620:0:860::/46 a -all",
-        },
+				Data: []string{
+					"v=spf1 ip4:192.0.2.0/24 ip4:198.51.100.123 ip6:2620:0:860::/46 a -all",
+				},
 			},
 			want:       []byte("\x45v=spf1 ip4:192.0.2.0/24 ip4:198.51.100.123 ip6:2620:0:860::/46 a -all"),
 			wantLength: 70,
@@ -83,10 +83,10 @@ func TestTxt_Build(t *testing.T) {
 			name: "Simple multipart",
 			txt: Txt{
 				Length: 10,
-				Data:   []string {
+				Data: []string{
 					"12345",
 					"dns",
-        },
+				},
 			},
 			want:       []byte("\x0512345\x03dns"),
 			wantLength: 10,
