@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"net"
 	"net/netip"
@@ -52,12 +51,11 @@ func main() {
 
 	for {
 		b := make([]byte, maxDatagram)
-		n, rcm, src, err := p.ReadFrom(b)
+		_, rcm, _, err := p.ReadFrom(b)
 		if err != nil {
 			println(err.Error())
 			continue
 		}
-		fmt.Printf("Read %d bytes from %s\n", n, src.String())
 		if rcm.Dst.IsMulticast() {
 			if rcm.Dst.Equal(group) {
 				// joined group, do something
@@ -106,22 +104,16 @@ func main() {
 		if err := reply.Build(sendBuf, dns.NewDomains()); err != nil {
 			fmt.Println("unable to build message: " + err.Error())
 		}
-		fmt.Printf("buffer bytes %+v\n", sendBuf.Bytes())
 
 		dst := &net.UDPAddr{IP: group, Port: 5353}
 		wcm := ipv6.ControlMessage{TrafficClass: 0xe0, HopLimit: 1}
 		for _, ifi := range []*net.Interface{ifi} {
 			wcm.IfIndex = ifi.Index
-			fmt.Printf("Sending to group %s from interface index %d with data\n%s\n",
-				group.String(), ifi.Index, prettyPrint(reply))
+			fmt.Printf("Sending to group %s from interface index %d with data\n",
+				group.String(), ifi.Index)
 			if _, err := p.WriteTo(sendBuf.Bytes(), &wcm, dst); err != nil {
 				fmt.Println(err.Error())
 			}
 		}
 	}
-}
-
-func prettyPrint(i any) string {
-	s, _ := json.MarshalIndent(i, "", "  ")
-	return string(s)
 }
