@@ -55,6 +55,9 @@ library:
  - AAAA
  - CNAME
  - OPT
+ - TXT
+ - SRV
+ - PTR
 
 More types are welcome! Please add tests and references to the standard in the
 PR.
