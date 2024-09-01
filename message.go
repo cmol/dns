@@ -188,6 +188,10 @@ func (m *Message) parseRecords(buf *bytes.Buffer, domains *Domains, ptr int,
 
 // Build builds entire DNS message into buf
 func (m *Message) Build(buf *bytes.Buffer, domains *Domains) error {
+	if m == nil {
+		return errors.New("message is not defined")
+	}
+
 	m.qdcount = uint16(len(m.Questions))
 	m.ancount = uint16(len(m.Answers))
 	m.nscount = uint16(len(m.Nameservers))

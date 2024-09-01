@@ -350,6 +350,17 @@ func TestMessage_Build(t *testing.T) {
 	}
 }
 
+func TestMessage_BuildNil(t *testing.T) {
+	t.Run("build message with undefined message", func(t *testing.T) {
+		buf := new(bytes.Buffer)
+		var m *Message
+		if err := m.Build(buf, NewDomains()); (err != nil) != true {
+			t.Errorf("Message.Build() error = %v, wantErr %v", err, true)
+			return
+		}
+	})
+}
+
 func BenchmarkMessageParsing(b *testing.B) {
 	buf := []byte("\x00\x1d\x81\x80\x00\x01\x00\x01\x00\x00\x00\x00\x06\x67\x6f\x6c\x61\x6e\x67\x03\x6f\x72\x67\x00\x00\x1c\x00\x01\xc0\x0c\x00\x1c\x00\x01\x00\x00\x01\x2c\x00\x10\x26\x07\xf8\xb0\x40\x0b\x08\x02\x00\x00\x00\x00\x00\x00\x20\x11")
 	for i := 0; i < b.N; i++ {
